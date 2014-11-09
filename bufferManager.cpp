@@ -2,7 +2,7 @@
 
 bufferIter BFM::BufferManagerRead(const string &fileName, long offset)
 {
-	map <tag, bufferIter>::iterator it = table.find(make_pair(fileName,offset));
+	tableIter it = table.find(make_pair(fileName,offset));
 	if (it!=table.end()){ //already in the buffer
         Block tmp = *(it->second);
         buffer.erase(it->second); //move to the back of the buffer list
@@ -72,4 +72,9 @@ void BFM::flush()
     }
     buffer.clear();
     table.clear();
+}
+
+int main()
+{
+    return 0;
 }
