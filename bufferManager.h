@@ -24,7 +24,7 @@ struct Block{
 	//which file's block
 	unsigned char data[BLOCKSIZE];
 	//data part
-	unsigned int offset;
+	long offset;
 	//start address
 	int status;
 	//block status
@@ -32,7 +32,7 @@ struct Block{
 
 class BFM{
 public:
-	Block* BufferManagerRead(const string &fileName, unsigned int offset);
+	Block* BufferManagerRead(const string &fileName, long offset);
 	/*
 		输入：1.需要读取的文件名 2.起始地址(请确保为BLOCKSIZE的倍数)
 		操作：首先检查该块是否在主存缓冲区中, 若不在则在缓冲区中添加该块. 
