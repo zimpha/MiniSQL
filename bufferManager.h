@@ -20,11 +20,16 @@ using namespace std;
 	注意, 读取到的块的开头地址(offset)都是4096的整数倍, 每个块的大小为4KB
 **/
 
+class BFM;
+
 struct Block{
-	string fileName;
-	//which file's block
+public:
 	unsigned char data[BLOCKSIZE];
 	//data part
+private:
+    friend BFM;
+    string fileName;
+	//which file's block
 	long offset;
 	//start address
 	int status;
