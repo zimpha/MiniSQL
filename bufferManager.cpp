@@ -7,15 +7,23 @@ bufferIter BFM::BufferManagerRead(const string &fileName, long offset)
         Block tmp = *(it->second);
         buffer.erase(it->second); //move to the back of the buffer list
         buffer.push_back(tmp);
+
         bufferIter B = buffer.end();
         B--;
+        tag T = make_pair(tmp.fileName, tmp.offset);
+        table.find(T)->second = B; //update table
 		return B;
 	}
 	else{ //not in the buffer
         FILE *inFile = fopen(fileName.c_str(), "rb");
         fseek(inFile, offset, SEEK_SET);
         Block tmp;
-        fread(&tmp, 1, BLOCKSIZE, inFile);
+        tmp.fileName = fileName;
+        tmp.offset = offset;
+        tmp.status = 0;
+        fread(&tmp.data, 1, BLOCKSIZE, inFile);
+        fclose(inFile);
+
         buffer.push_back(tmp); //push into buffer
 
         tag T = make_pair(tmp.fileName, tmp.offset);
@@ -26,27 +34,35 @@ bufferIter BFM::BufferManagerRead(const string &fileName, long offset)
         if (buffer.size()>BUFFERSIZE){ //we should use LRU replace
             bufferIter victim = buffer.begin();
             while (victim->status==1) victim++; //find the least used unpin block
-            BufferManagerWrite(*victim);
-            buffer.erase(victim);
+            BufferManagerWrite(*victim); //writeback
         }
 
         return B;
 	}
 }
 
-void BFM::BufferManagerPin(const Block &b)
+void BFM::BufferManagerPin(Block &b)
 {
-
+    b.status = 1;
 }
 
 void BFM::BufferManagerWrite(const Block &b)
 {
+    FILE *outFile = fopen(b.fileName.c_str(), "wb");
+    fseek(outFile, b.offset, SEEK_SET);
+    fwrite(&b.data, 1, BLOCKSIZE, outFile);
+    fclose(outFile);
 
+    tag T = make_pair(b.fileName, b.offset);
+    tableIter tmp = table.find(T);
+    bufferIter victim = tmp->second;
+    table.erase(table.find(T)); //remove from table
+    buffer.erase(victim); //remove from buffer
 }
 
 int BFM::BufferManagerGetStatus(const Block &b)
 {
-    return 0;
+    return b.status;
 }
 
 void BFM::flush()
@@ -56,9 +72,4 @@ void BFM::flush()
     }
     buffer.clear();
     table.clear();
-}
-
-int main()
-{
-	return 0;
 }
