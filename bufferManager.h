@@ -3,7 +3,6 @@
 
 #define BLOCKSIZE 4096
 #define BUFFERSIZE 1024
-#define HASHSIZE 1000007
 
 #include <list>
 #include <string>
@@ -29,7 +28,7 @@ struct Block{
 	long offset;
 	//start address
 	int status;
-	//block status
+	//block status 0--normal 1-pin
 };
 
 typedef list<Block>::iterator bufferIter;
@@ -38,30 +37,30 @@ typedef map <tag, bufferIter>::iterator tableIter;
 
 class BFM{
 public:
-	Block BufferManagerRead(const string &fileName, long offset);
+	bufferIter BufferManagerRead(const string &fileName, long offset);
 	/*
 		输入：1.需要读取的文件名 2.起始地址(请确保为BLOCKSIZE的倍数)
 		操作：首先检查该块是否在主存缓冲区中, 若不在则在缓冲区中添加该块.
 		      如果需要的话, 会按LRU策略从缓冲区中移出其他块来腾出空间.
-		输出：缓冲区中的这个块
+		返回：bufferIter迭代器. 如果对读取的BLOCK有修改操作的话, 请直接对这个迭代器指向的内容进行修改
 	*/
 	void BufferManagerPin(const Block &b);
 	/*
 		输入：需要锁定的缓冲区块
 		操作：修改这个块的状态为: 不允许被写出.
-		输出：无
+		返回：无
 	*/
 	void BufferManagerWrite(const Block &b);
 	/*
 		输入：需要强制写出的缓冲区块.(可以将通过BufferManagerPin锁定的块写出)
 		操作：将这个块的内容写入磁盘中
-		输出：无
+		返回：无
 	*/
 	int  BufferManagerGetStatus(const Block &b);
 	/*
 		输入：需要获得状态的缓冲区块
 		操作：定位对应的块, 读取其状态
-		输出：0--普通状态(可能被替换出去)
+		返回：0--普通状态(可能被替换出去)
 		      1--锁定状态(不会被替换出去, 可以被强制写出)
 	*/
 	void flush();
