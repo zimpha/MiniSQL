@@ -64,10 +64,11 @@ public:
 	*/
 private:
 	list <Block> buffer;
-	struct{
+	struct HashElement{
 		list <Block> :: iterator it;
 		int status;
-	}HashElement hashTable[HASHSIZE];
+	};
+	HashElement hashTable[HASHSIZE];
 };
 
 #endif
