@@ -49,7 +49,7 @@ public:
 		      如果需要的话, 会按LRU策略从缓冲区中移出其他块来腾出空间.
 		返回：bufferIter迭代器. 如果对读取的BLOCK有修改操作的话, 请直接对这个迭代器指向的内容进行修改
 	*/
-	void BufferManagerPin(const Block &b);
+	void BufferManagerPin(Block &b);
 	/*
 		输入：需要锁定的缓冲区块
 		操作：修改这个块的状态为: 不允许被写出.
