@@ -7,6 +7,8 @@
 
 #include <list>
 #include <string>
+#include <cstdio>
+#include <map>
 
 using namespace std;
 
@@ -63,12 +65,9 @@ public:
 		将缓冲区中所有的块都强制写出.
 	*/
 private:
+	typedef list<Block>::iterator IT;
 	list <Block> buffer;
-	struct HashElement{
-		list <Block> :: iterator it;
-		int status;
-	};
-	HashElement hashTable[HASHSIZE];
+	map < pair <string, long>, IT> table;
 };
 
 #endif
