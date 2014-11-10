@@ -16,7 +16,6 @@ public:
     Response Select(const std::string &tableName, const Filter &filter);
     Response Delete(const std::string &tableName, const Filter &filter);
     Response Insert(const std::string &tableName, const std::vector<element> entry);
-private:
     CatalogManager cm;
 };
 
