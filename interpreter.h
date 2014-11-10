@@ -2,7 +2,7 @@
 #define _INTERPRETER_H
 
 #include <string>
-#inlcude "API.h"
+#include "API.h"
 
 class Interpreter {
 public:
@@ -10,5 +10,8 @@ public:
 private:
     API api;
     void execfile(std::string filename);
+    element parseElement(std::string data);
+    void parse(std::string input);
+    void printSelectResult(const Table &nt, const Response &res);
 };
 #endif
