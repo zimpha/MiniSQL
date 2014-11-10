@@ -54,7 +54,7 @@ element::element(double x): d(x), type(1) {}
 element::element(std::string x): s(x), type(2) {}
 element::element(const char *x): s(x), type(2) {}
 
-void element::print() {
+void element::print() const {
     switch (type) {
         case 0: std::cout << i; return;
         case 1: std::cout << d; return;
@@ -102,12 +102,3 @@ bool element::operator != (const element &rhs) const {
 Response::Response(): succeed(true) {}
 Response::Response(std::string data): succeed(false), info(data) {}
 Response::Response(std::vector<std::vector<element> > res): succeed(false), result(res) {}
-
-//#define LOCAL_TEST
-#ifdef LOCAL_TEST
-
-int main() {
-    return 0;
-}
-
-#endif

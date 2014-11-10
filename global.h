@@ -39,7 +39,7 @@ struct element {
     bool operator >= (const element &rhs) const;
     bool operator <= (const element &rhs) const;
     bool operator != (const element &rhs) const;
-    void print();
+    void print() const;
 };
 
 struct Response {
