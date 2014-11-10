@@ -15,6 +15,7 @@ bufferIter BFM::BufferManagerRead(const string &fileName, long offset)
 		return B;
 	}
 	else{ //not in the buffer
+
         FILE *inFile = fopen(fileName.c_str(), "rb");
         fseek(inFile, offset, SEEK_SET);
         Block tmp;
@@ -68,11 +69,23 @@ int BFM::BufferManagerGetStatus(const Block &b)
     return b.status;
 }
 
-void BFM::flush()
+void BFM::BufferManagerFlush()
 {
     for (bufferIter T = buffer.begin(); T!=buffer.end();){
         BufferManagerWrite(*T++);
     }
     buffer.clear();
     table.clear();
+}
+
+void BFM::deleteFile(const string &fileName)
+{
+    for (bufferIter T = buffer.begin(); T!=buffer.end();){
+        if (T->fileName==fileName){
+            BufferManagerWrite(*T++);
+        }
+        else T++;
+    }
+    string command = "rm "+fileName;
+    system(command.c_str());
 }
