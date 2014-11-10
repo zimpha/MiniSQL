@@ -73,8 +73,3 @@ void BFM::flush()
     buffer.clear();
     table.clear();
 }
-
-int main()
-{
-    return 0;
-}
