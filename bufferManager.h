@@ -26,12 +26,12 @@ struct Block{
 public:
 	unsigned char data[BLOCKSIZE];
 	//data part
-private:
-    friend BFM;
     string fileName;
 	//which file's block
 	long offset;
 	//start address
+private:
+    friend BFM;
 	int status;
 	//block status 0--normal 1-pin
 };
@@ -58,7 +58,8 @@ public:
 	void BufferManagerWrite(const Block &b);
 	/*
 		输入：需要强制写出的缓冲区块.(可以将通过BufferManagerPin锁定的块写出)
-		操作：将这个块的内容写入磁盘中
+		      如果要新建一个文件或者在某个文件后附加一个块的话, 需要先设定好Block结构中的fileName和offset成员变量
+		操作：将这个块的内容写入b.fileName和b.offset指定的磁盘中
 		返回：无
 	*/
 	int  BufferManagerGetStatus(const Block &b);
