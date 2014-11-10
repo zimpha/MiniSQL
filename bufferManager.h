@@ -1,5 +1,5 @@
-#ifndef _bufferManager_h_
-#define _bufferManager_h_
+#ifndef _BUFFERMANAGER_H
+#define _BUFFERMANAGER_H
 
 #define BLOCKSIZE 4096
 #define BUFFERSIZE 1024
@@ -8,6 +8,7 @@
 #include <string>
 #include <cstdio>
 #include <map>
+#include <cstring>
 
 using namespace std;
 
@@ -24,9 +25,12 @@ class BFM;
 
 struct Block{
 public:
+    Block():offset(0){
+        memset(data, 0, sizeof(data));
+    }
 	unsigned char data[BLOCKSIZE];
 	//data part
-    string fileName;
+	string fileName;
 	//which file's block
 	long offset;
 	//start address
