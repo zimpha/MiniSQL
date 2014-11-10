@@ -10,6 +10,7 @@
 #include <map>
 #include <cstring>
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -58,14 +59,12 @@ public:
 	/*
 		输入：需要锁定的缓冲区块
 		操作：修改这个块的状态为: 不允许被写出.
-		返回：无
 	*/
 	void BufferManagerWrite(const Block &b);
 	/*
 		输入：需要强制写出的缓冲区块.(可以将通过BufferManagerPin锁定的块写出)
 		      如果要新建一个文件或者在某个文件后附加一个块的话, 需要先设定好Block结构中的fileName和offset成员变量
 		操作：将这个块的内容写入b.fileName和b.offset指定的磁盘中
-		返回：无
 	*/
 	int  BufferManagerGetStatus(const Block &b);
 	/*
@@ -74,9 +73,14 @@ public:
 		返回：0--普通状态(可能被替换出去)
 		      1--锁定状态(不会被替换出去, 可以被强制写出)
 	*/
-	void flush();
+	void BufferManagerFlush();
 	/*
 		将缓冲区中所有的块都强制写出.
+	*/
+	void deleteFile(const string &fileName);
+	/*
+        输入：需要删除的文件名.
+		操作: 将缓冲区中所有的该文件的块都强制写出. 然后删除这个文件.
 	*/
 private:
 	list <Block> buffer;
