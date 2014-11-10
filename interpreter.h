@@ -2,7 +2,7 @@
 #define _INTERPRETER_H
 
 #include <string>
-#inlcude "API.h"
+#include "API.h"
 
 class Interpreter {
 public:
