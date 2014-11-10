@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "global.h"
 #include "CatalogManager.h"
-//#include "BufferManager.h"
+#include "bufferManager.h"
 //#include "RecordManager.h"
 
 class IndexTableManager {
@@ -96,6 +96,8 @@ void CatalogManager::dropTable(const std::string &tableName) {
             dropIndex(x);
         }
         if (flag) {
+            BFM bm;
+            bm.deleteFile(name + "." + attr[i].name + ".index");
             // BufferManager clear index
             // name + "." attr[i].name + ".index"
         }
