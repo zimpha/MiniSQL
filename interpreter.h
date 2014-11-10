@@ -9,5 +9,6 @@ public:
     void process(std::string line);
 private:
     API api;
+    void execfile(std::string filename);
 };
 #endif
