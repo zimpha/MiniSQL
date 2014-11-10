@@ -55,9 +55,12 @@ void BFM::BufferManagerWrite(const Block &b)
 
     tag T = make_pair(b.fileName, b.offset);
     tableIter tmp = table.find(T);
-    bufferIter victim = tmp->second;
-    table.erase(table.find(T)); //remove from table
-    buffer.erase(victim); //remove from buffer
+    if (tmp!=table.end()){ //in the buffer, which means not new written
+        bufferIter victim = tmp->second;
+        table.erase(table.find(T)); //remove from table
+        buffer.erase(victim); //remove from buffer
+    }
+
 }
 
 int BFM::BufferManagerGetStatus(const Block &b)
