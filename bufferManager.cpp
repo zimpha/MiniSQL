@@ -70,8 +70,8 @@ int BFM::BufferManagerGetStatus(const Block &b)
 
 void BFM::flush()
 {
-    for (bufferIter T = buffer.begin(); T!=buffer.end(); T++){
-        BufferManagerWrite(*T);
+    for (bufferIter T = buffer.begin(); T!=buffer.end();){
+        BufferManagerWrite(*T++);
     }
     buffer.clear();
     table.clear();
