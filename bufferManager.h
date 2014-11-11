@@ -12,8 +12,6 @@
 #include <iostream>
 #include <cstdlib>
 
-using namespace std;
-
 /**
 	该文件是MiniSQL中的缓冲区管理模块头文件.
 	推荐采取的文件存储方式 :
@@ -32,7 +30,7 @@ public:
     }
 	unsigned char data[BLOCKSIZE];
 	//data part
-	string fileName;
+	std::string fileName;
 	//which file's block
 	long offset;
 	//start address
@@ -42,13 +40,13 @@ private:
 	//block status 0--normal 1-pin
 };
 
-typedef list<Block>::iterator bufferIter;
-typedef pair <string, long> tag;
-typedef map <tag, bufferIter>::iterator tableIter;
+typedef std::list<Block>::iterator bufferIter;
+typedef std::pair <std::string, long> tag;
+typedef std::map <tag, bufferIter>::iterator tableIter;
 
 class BFM{
 public:
-	bufferIter BufferManagerRead(const string &fileName, long offset);
+	bufferIter BufferManagerRead(const std::string &fileName, long offset);
 	/*
 		输入：1.需要读取的文件名 2.起始地址(请确保为BLOCKSIZE的倍数)
 		操作：首先检查该块是否在主存缓冲区中, 若不在则在缓冲区中添加该块.
@@ -77,14 +75,14 @@ public:
 	/*
 		将缓冲区中所有的块都强制写出.
 	*/
-	void deleteFile(const string &fileName);
+	void deleteFile(const std::string &fileName);
 	/*
         输入：需要删除的文件名.
 		操作: 将缓冲区中所有的该文件的块都强制写出. 然后删除这个文件.
 	*/
 private:
-	list <Block> buffer;
-	map <tag, bufferIter> table;
+	std::list <Block> buffer;
+	std::map <tag, bufferIter> table;
 };
 
 #endif

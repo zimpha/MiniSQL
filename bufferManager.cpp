@@ -1,5 +1,7 @@
 #include "bufferManager.h"
 
+using namespace std;
+
 bufferIter BFM::BufferManagerRead(const string &fileName, long offset)
 {
 	tableIter it = table.find(make_pair(fileName,offset));
@@ -80,11 +82,9 @@ void BFM::BufferManagerFlush()
 
 void BFM::deleteFile(const string &fileName)
 {
-    for (bufferIter T = buffer.begin(); T!=buffer.end();){
-        if (T->fileName==fileName){
-            BufferManagerWrite(*T++);
-        }
-        else T++;
+    tableIter tIt = table.lower_bound(make_pair(fileName,0));
+    for (; tIt!=table.end() && tIt->first.first==fileName; ){
+        BufferManagerWrite(*(tIt++->second));
     }
     string command = "rm "+fileName;
     system(command.c_str());
