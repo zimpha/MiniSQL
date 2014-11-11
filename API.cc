@@ -35,6 +35,7 @@ Response API::createIndex(const std::string &indexName, const std::string &table
     nt.attributes[attrIndex].indices.insert(indexName);
     nt.write();
     if (nt.attributes[attrIndex].indices.size() == 1) {
+        // 这个是给Index Manager的吧？
         // Record Manager add index
         // 提供index文件名和当前表，以及attrIndex给Record Manager
         // rmAddIndex(tableName+".db",tableName+"."+nt.attributes[attrIndex].name+".index",nt,attrIndex);
@@ -105,7 +106,8 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
                 // offset == -1 表示没有这个val
                 // Record Manager return select result by using index
                 // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
-                // return Response(rmSelectWithIndex(dbName, offset, filter, nt));
+                // 
+                return Response(rm.rmSelectWithIndex(dbName, offset, filter, nt));
             }
         }
     }
@@ -113,12 +115,12 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
     if (filter.rules.empty()) {
         // Record Manager return select result without index
         // 传入数据库文件名（dbName），过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
-        // return Response(rmSelectWithoutIndex(dbName, filter, nt));
+        return Response(rm.rmSelectWithoutIndex(dbName, filter, nt));
     }
     std::set<long> offset;
     // Record Manager get offset according to dbName
     // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
-    // offset = rmGetAllOffsets(dbName);
+    offset = rm.rmGetAllOffsets(dbName);
     for (size_t i = 0; i < filter.rules.size(); ++ i) {
         Rule rule = filter.rules[i];
         int attrIndex = rule.index;
@@ -174,7 +176,7 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
         std::vector<std::vector<element> > tmp;
         // Record Manager return select result by using index
         // 传入数据库文件名（dbName），偏移量(x)，过滤器(filter)，当前表(nt)，返回select结果(类型Response)
-        // tmp = rmSelectWithIndex(dbName, x, filter, nt);
+        tmp = rm.rmSelectWithIndex(dbName, x, filter, nt);
         for (size_t i = 0; i < tmp.size(); ++ i) {
             res.push_back(tmp[i]);
         }
@@ -207,7 +209,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
                 // offset == -1 表示没有这个val
                 // Record Manager delete records by using index
                 // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)
-                // rmDeleteWithIndex(dbName, offset, filter, nt));
+                rm.rmDeleteWithIndex(dbName, offset, filter, nt);
                 return Response();
             }
         }
@@ -216,14 +218,14 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
     if (filter.rules.empty()) {
         // Record Manager delete records without index
         // 传入数据库文件名（dbName），过滤器(filter)，当前表(nt)
-        // rmDeleteWithoutIndex(dbName, filter, nt));
+        rm.rmDeleteWithoutIndex(dbName, filter, nt);
         return Response();
     }
     
-    std::set<int> offset;
+    std::set<long> offset;
     // Record Manager get offset according to dbName
     // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
-    // offset = rmGetAllOffsets(dbName);
+    offset = rm.rmGetAllOffsets(dbName);
     for (size_t i = 0; i < filter.rules.size(); ++ i) {
         Rule rule = filter.rules[i];
         int attrIndex = rule.index;
@@ -277,7 +279,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
     for (auto x : offset) {
         // Record Manager delete records by using index
         // 传入数据库文件名（dbName），偏移量(x)，过滤器(filter)，当前表(nt)
-        // rmDeleteWithIndex(dbName, x, filter, nt));
+        rm.rmDeleteWithIndex(dbName, x, filter, nt);
     }
     return Response();
 }
@@ -304,7 +306,7 @@ Response API::Insert(const std::string &tableName, const std::vector<element> en
     }
     // Record Manager insert record
     // 传入数据库文件名(dbName)，插入数据(entry)，当前表格(nt)
-    // rmInsertRecord(dbName, entry, nt);
+    rm.rmInsertRecord(dbName, entry, nt);
     return Response();
 }
 
