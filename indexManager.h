@@ -17,22 +17,29 @@ struct IndexManager {
 
     Response erase(const std::string &indexName, const element &e);
 
-    //如果没有throw "not exist"
+    //如果没有返回isEnd()为true的迭代器，类似STL左闭右开
     IndexIter find(const std::string &indexName, const element &e);
 
-    //如果没有throw "not exist"
     IndexIter lower_bound(const std::string &indexName, const element &e);
 
-    //如果没有throw "not exist"
     IndexIter upper_bound(const std::string &indexName, const element &e);
 };
 
 struct IndexIter {
-    bool hasFront();
-    bool hasNext();
+    bool isBegin();
+
+    bool isEnd();
+
+    void set(long offset);
+
+    long get();
+
     IndexIter& operator ++();
+
     IndexIter operator ++(int);
+
     IndexIter& operator --();
+
     IndexIter operator --(int);
 };
 
