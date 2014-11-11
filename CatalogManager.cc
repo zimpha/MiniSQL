@@ -86,7 +86,6 @@ Table CatalogManager::loadTable(const std::string &tableName) {
 void CatalogManager::dropTable(const std::string &tableName) {
     assert(hasTable(tableName));
     std::string name = tableName.substr(0, tableName.find('.'));
-    //std::cout << name << std::endl;
     Table nt = loadTable(tableName);
     std::vector<AttrType> &attr = nt.attributes;
     for (size_t i = 0; i < attr.size(); ++ i) {
@@ -97,13 +96,14 @@ void CatalogManager::dropTable(const std::string &tableName) {
         }
         if (flag) {
             BFM bm;
-            bm.deleteFile(name + "." + attr[i].name + ".index");
-            // BufferManager clear index
-            // name + "." attr[i].name + ".index"
+            std::string indexFileName = name + "." + attr[i].name + ".index";
+            bm.deleteFile(indexFileName);
         }
     }
-    // RecordManager clear database
-    // name + ".db"
+    std::string dbName = name + ".db";
+    // Record Manager clear database
+    // 传入数据库文件名(dbName)
+    // rmClear(dbName);
     remove((tableName).c_str());
 }
 
