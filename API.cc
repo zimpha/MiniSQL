@@ -7,13 +7,12 @@
 #include "API.h"
 #include "CatalogManager.h"
 //#include "RecordManager.h"
-//#include "bufferManager.h"
 //#include "btree.h"
 
 // File name rule:
-// Table: $TableName.table
-// Index: $TableName.$ItemName.index
-// DB File: $TableName.db
+// Table: $tableName.table
+// Index: $tableName.$attrName.index
+// DB File: $tableName.db
 
 Response API::createIndex(const std::string &indexName, const std::string &tableName, const std::string &attrName) {
     if (!cm.hasTable(tableName + ".table")) {
@@ -59,8 +58,7 @@ Response API::dropIndex(const std::string &indexName) {
     nt.write();
     cm.dropIndex(indexName);
     if (nt.attributes[attrIndex].indices.size() == 0) {
-        // Buffer Manager remove index
-        // bmClear(tableName+"."+nt.attributes[attrIndex].name+".index");
+        bm.deleteFile(tableName + "." + nt.attributes[attrIndex].name + ".index");
     }
     return Response();
 }
@@ -90,7 +88,96 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
         return Response("Table does not exist");
     }
     
-    return Response();
+    Table nt = cm.loadTable(tableName + ".table");
+    std::string dbName = tableName + ".db";
+    for (size_t i = 0; i < filter.rules.size(); ++ i) {
+        element val = filter.rules[i].val;
+        int attrIndex = filter.rules[i].index;
+        if (nt.attributes[attrIndex].type != val.type) {
+            return Response("Type mismatch");
+        }
+    }
+    
+    for (size_t i = 0; i < filter.rules.size(); ++ i) {
+        if (filter.rules[i].type == 2) { // =
+            element val = filter.rules[i].val;
+            int attrIndex = filter.rules[i].index;
+            if (!nt.attributes[attrIndex].indices.empty()) { // has index on it
+                std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+                // B plus tree get file offset
+                // 传入文件名(indexFileName)，属性的值(val)
+                // int offset = btFind(indexFileName, val);
+                
+                // Record Manager return select result by using index
+                // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
+                // return Response(rmSelectWithIndex(dbName, offset, filter, nt));
+            }
+        }
+    }
+    
+    if (filter.rules.empty()) {
+        // Record Manager return select result without index
+        // 传入数据库文件名（dbName），过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
+        // return Response(rmSelectWithoutIndex(dbName, filter, nt));
+    }
+    std::set<int> offset;
+    // Record Manager get offset according to dbName
+    // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
+    // offset = rmGetAllOffsets(dbName);
+    for (size_t i = 0; i < filter.rules.size(); ++ i) {
+        Rule rule = filter.rules[i];
+        int attrIndex = rule.index;
+        if (nt.attributes[attrIndex].indices.empty()) {
+            continue;
+        }
+        element val = rule.val;
+        std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+        std::set<int> newOffset;
+        // B plus tree get offset according to filter rules
+        // 传入文件名(indexFileName)，属性的值(val)
+        /*switch (rule.type) {
+            case 0: // <
+                newOffset = btFindLess(indexFileName, val);
+                break;
+            case 1: // <=
+                newOffset = btFindLess(indexFileName, val);
+                newOffset.insert(btFind(indexFileName, val));
+                break;
+            case 2: // =
+                assert(false);
+                break;
+            case 3: // >=
+                newOffset = btFindMore(indexFileName, val);
+                newOffset.insert(btFind(indexFileName, val));
+                break;
+            case 4: // >
+                newOffset = btFindMore(indexFileName, val);
+                break;
+            case 5: // <>
+                break;
+            default: 
+                assert(false);
+                break;
+        }*/
+        std::vector<int> tmp(offset.size());
+        std::vector<int>::iterator end = std::set_intersection(offset.begin(), offset.end(), newOffset.begin(), newOffset.end(), tmp.begin());
+        offset.clear();
+        for (std::vector<int>::iterator it = tmp.begin(); it != end; ++ it) {
+            offset.insert(*it);
+        }
+    }
+    
+    std::vector<std::vector<element> > res;
+    for (auto x : offset) {
+        std::vector<std::vector<element> > tmp;
+        // Record Manager return select result by using index
+        // 传入数据库文件名（dbName），偏移量(x)，过滤器(filter)，当前表(nt)，返回select结果(类型Response)
+        // tmp = rmSelectWithIndex(dbName, x, filter, nt);
+        for (size_t i = 0; i < tmp.size(); ++ i) {
+            res.push_back(tmp[i]);
+        }
+    }
+    return Response(res);
 }
 
 Response API::Delete(const std::string &tableName, const Filter &filter) {
@@ -98,6 +185,93 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
         return Response("Table does not exist");
     }
     
+    const Table nt = cm.loadTable(tableName + ".table");
+    std::string dbName = tableName + ".db";
+    for (size_t i = 0; i < filter.rules.size(); ++ i) {
+        element val = filter.rules[i].val;
+        int attrIndex = filter.rules[i].index;
+        if (nt.attributes[attrIndex].type != val.type) {
+            return Response("Type mismatch");
+        }
+    }
+    
+    for (size_t i = 0; i < filter.rules.size(); ++ i) {
+        if (filter.rules[i].type == 2) { // =
+            element val = filter.rules[i].val;
+            int attrIndex = filter.rules[i].index;
+            if (!nt.attributes[attrIndex].indices.empty()) { // has index on it
+                std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+                // B plus tree get file offset
+                // 传入文件名(indexFileName)，属性的值(val)
+                // int offset = btFind(indexFileName, val);
+                
+                // Record Manager delete records by using index
+                // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)
+                // rmDeleteWithIndex(dbName, offset, filter, nt));
+                return Response();
+            }
+        }
+    }
+    
+    if (filter.rules.empty()) {
+        // Record Manager delete records without index
+        // 传入数据库文件名（dbName），过滤器(filter)，当前表(nt)
+        // rmDeleteWithoutIndex(dbName, filter, nt));
+        return Response();
+    }
+    
+    std::set<int> offset;
+    // Record Manager get offset according to dbName
+    // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
+    // offset = rmGetAllOffsets(dbName);
+    for (size_t i = 0; i < filter.rules.size(); ++ i) {
+        Rule rule = filter.rules[i];
+        int attrIndex = rule.index;
+        if (nt.attributes[attrIndex].indices.empty()) {
+            continue;
+        }
+        element val = rule.val;
+        std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+        std::set<int> newOffset;
+        // B plus tree get offset according to filter rules
+        // 传入文件名(indexFileName)，属性的值(val)
+        /*switch (rule.type) {
+         *       case 0: // <
+         *           newOffset = btFindLess(indexFileName, val);
+         *           break;
+         *       case 1: // <=
+         *           newOffset = btFindLess(indexFileName, val);
+         *           newOffset.insert(btFind(indexFileName, val));
+         *           break;
+         *       case 2: // =
+         *           assert(false);
+         *           break;
+         *       case 3: // >=
+         *           newOffset = btFindMore(indexFileName, val);
+         *           newOffset.insert(btFind(indexFileName, val));
+         *           break;
+         *       case 4: // >
+         *           newOffset = btFindMore(indexFileName, val);
+         *           break;
+         *       case 5: // <>
+         *           break;
+         *       default: 
+         *           assert(false);
+         *           break;
+    }*/
+        std::vector<int> tmp(offset.size());
+        std::vector<int>::iterator end = std::set_intersection(offset.begin(), offset.end(), newOffset.begin(), newOffset.end(), tmp.begin());
+        offset.clear();
+        for (std::vector<int>::iterator it = tmp.begin(); it != end; ++ it) {
+            offset.insert(*it);
+        }
+    }
+    
+    for (auto x : offset) {
+        // Record Manager delete records by using index
+        // 传入数据库文件名（dbName），偏移量(x)，过滤器(filter)，当前表(nt)
+        // rmDeleteWithIndex(dbName, x, filter, nt));
+    }
     return Response();
 }
 
@@ -122,6 +296,15 @@ Response API::Insert(const std::string &tableName, const std::vector<element> en
         }
     }
     // Record Manager insert record
-    // rmInsertRecord(tableName+".db", entry, nt);
+    // 传入数据库文件名(dbName)，插入数据(entry)，当前表格(nt)
+    // rmInsertRecord(dbName, entry, nt);
     return Response();
 }
+
+//#define LOCAL_TEST
+#ifdef LOCAL_TEST
+
+int main() {
+    return 0;
+}
+#endif
