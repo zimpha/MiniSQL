@@ -18,6 +18,7 @@ public:
     Response Delete(const std::string &tableName, const Filter &filter);
     Response Insert(const std::string &tableName, const std::vector<element> entry);
     CatalogManager cm;
+    RecordManger rm;
     BFM bm;
 };
 
