@@ -7,6 +7,7 @@
 #include "filter.h"
 #include "CatalogManager.h"
 #include "bufferManager.h"
+#include "indexManager.h"
 #include "RecordManager.h"
 
 class API {
@@ -20,7 +21,12 @@ public:
     Response Insert(const std::string &tableName, const std::vector<element> entry);
     CatalogManager cm;
     RecordManager rm;
+    IndexManager im;
     BFM bm;
+private:
+    std::set<long> getMoreOffset(const std::string indexName, const element val); // >
+    std::set<long> getLessOffset(const std::string indexName, const element val); // <
+    long getOffset(const std::string indexName, const element val); // =
 };
 
 #endif
