@@ -7,6 +7,8 @@
 #include "filter.h"
 #include "CatalogManager.h"
 #include "bufferManager.h"
+#include "indexManager.h"
+#include "RecordManager.h"
 
 class API {
 public:
@@ -18,8 +20,13 @@ public:
     Response Delete(const std::string &tableName, const Filter &filter);
     Response Insert(const std::string &tableName, const std::vector<element> entry);
     CatalogManager cm;
-    RecordManger rm;
+    RecordManager rm;
+    IndexManager im;
     BFM bm;
+private:
+    std::set<long> getMoreOffset(const std::string indexName, const element val); // >
+    std::set<long> getLessOffset(const std::string indexName, const element val); // <
+    long getOffset(const std::string indexName, const element val); // =
 };
 
 #endif

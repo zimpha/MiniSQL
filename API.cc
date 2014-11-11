@@ -5,9 +5,6 @@
 #include <iostream>
 #include <algorithm>
 #include "API.h"
-#include "CatalogManager.h"
-//#include "RecordManager.h"
-//#include "btree.h"
 
 // File name rule:
 // Table: $tableName.table
@@ -104,10 +101,8 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
             int attrIndex = filter.rules[i].index;
             if (!nt.attributes[attrIndex].indices.empty()) { // has index on it
                 std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
-                // B plus tree get file offset
-                // 传入文件名(indexFileName)，属性的值(val)
-                // int offset = btFind(indexFileName, val);
-                
+                long offset = getOffset(indexFileName, val);
+                // offset == -1 表示没有这个val
                 // Record Manager return select result by using index
                 // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
                 // return Response(rmSelectWithIndex(dbName, offset, filter, nt));
@@ -120,7 +115,7 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
         // 传入数据库文件名（dbName），过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
         // return Response(rmSelectWithoutIndex(dbName, filter, nt));
     }
-    std::set<int> offset;
+    std::set<long> offset;
     // Record Manager get offset according to dbName
     // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
     // offset = rmGetAllOffsets(dbName);
@@ -132,37 +127,44 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
         }
         element val = rule.val;
         std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
-        std::set<int> newOffset;
+        std::set<long> newOffset;
+        long tmpOffset;
         // B plus tree get offset according to filter rules
         // 传入文件名(indexFileName)，属性的值(val)
-        /*switch (rule.type) {
+        switch (rule.type) {
             case 0: // <
-                newOffset = btFindLess(indexFileName, val);
+                newOffset = getLessOffset(indexFileName, val);
                 break;
             case 1: // <=
-                newOffset = btFindLess(indexFileName, val);
-                newOffset.insert(btFind(indexFileName, val));
+                newOffset = getLessOffset(indexFileName, val);
+                tmpOffset = getOffset(indexFileName, val);
+                if (tmpOffset != -1) {
+                    newOffset.insert(tmpOffset);
+                }
                 break;
             case 2: // =
                 assert(false);
                 break;
             case 3: // >=
-                newOffset = btFindMore(indexFileName, val);
-                newOffset.insert(btFind(indexFileName, val));
+                newOffset = getMoreOffset(indexFileName, val);
+                tmpOffset = getOffset(indexFileName, val);
+                if (tmpOffset != -1) {
+                    newOffset.insert(tmpOffset);
+                }
                 break;
             case 4: // >
-                newOffset = btFindMore(indexFileName, val);
+                newOffset = getMoreOffset(indexFileName, val);
                 break;
             case 5: // <>
                 break;
             default: 
                 assert(false);
                 break;
-        }*/
-        std::vector<int> tmp(offset.size());
-        std::vector<int>::iterator end = std::set_intersection(offset.begin(), offset.end(), newOffset.begin(), newOffset.end(), tmp.begin());
+        }
+        std::vector<long> tmp(offset.size());
+        std::vector<long>::iterator end = std::set_intersection(offset.begin(), offset.end(), newOffset.begin(), newOffset.end(), tmp.begin());
         offset.clear();
-        for (std::vector<int>::iterator it = tmp.begin(); it != end; ++ it) {
+        for (std::vector<long>::iterator it = tmp.begin(); it != end; ++ it) {
             offset.insert(*it);
         }
     }
@@ -201,10 +203,8 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
             int attrIndex = filter.rules[i].index;
             if (!nt.attributes[attrIndex].indices.empty()) { // has index on it
                 std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
-                // B plus tree get file offset
-                // 传入文件名(indexFileName)，属性的值(val)
-                // int offset = btFind(indexFileName, val);
-                
+                long offset = getOffset(indexFileName, val);
+                // offset == -1 表示没有这个val
                 // Record Manager delete records by using index
                 // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)
                 // rmDeleteWithIndex(dbName, offset, filter, nt));
@@ -232,37 +232,44 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
         }
         element val = rule.val;
         std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
-        std::set<int> newOffset;
+        std::set<long> newOffset;
+        long tmpOffset;
         // B plus tree get offset according to filter rules
         // 传入文件名(indexFileName)，属性的值(val)
-        /*switch (rule.type) {
-         *       case 0: // <
-         *           newOffset = btFindLess(indexFileName, val);
-         *           break;
-         *       case 1: // <=
-         *           newOffset = btFindLess(indexFileName, val);
-         *           newOffset.insert(btFind(indexFileName, val));
-         *           break;
-         *       case 2: // =
-         *           assert(false);
-         *           break;
-         *       case 3: // >=
-         *           newOffset = btFindMore(indexFileName, val);
-         *           newOffset.insert(btFind(indexFileName, val));
-         *           break;
-         *       case 4: // >
-         *           newOffset = btFindMore(indexFileName, val);
-         *           break;
-         *       case 5: // <>
-         *           break;
-         *       default: 
-         *           assert(false);
-         *           break;
-    }*/
-        std::vector<int> tmp(offset.size());
-        std::vector<int>::iterator end = std::set_intersection(offset.begin(), offset.end(), newOffset.begin(), newOffset.end(), tmp.begin());
+        switch (rule.type) {
+            case 0: // <
+                newOffset = getLessOffset(indexFileName, val);
+                break;
+            case 1: // <=
+                newOffset = getLessOffset(indexFileName, val);
+                tmpOffset = getOffset(indexFileName, val);
+                if (tmpOffset != -1) {
+                    newOffset.insert(tmpOffset);
+                }
+                break;
+            case 2: // =
+                assert(false);
+                break;
+            case 3: // >=
+                newOffset = getMoreOffset(indexFileName, val);
+                tmpOffset = getOffset(indexFileName, val);
+                if (tmpOffset != -1) {
+                    newOffset.insert(tmpOffset);
+                }
+                break;
+            case 4: // >
+                newOffset = getMoreOffset(indexFileName, val);
+                break;
+            case 5: // <>
+                break;
+            default: 
+                assert(false);
+                break;
+        }
+        std::vector<long> tmp(offset.size());
+        std::vector<long>::iterator end = std::set_intersection(offset.begin(), offset.end(), newOffset.begin(), newOffset.end(), tmp.begin());
         offset.clear();
-        for (std::vector<int>::iterator it = tmp.begin(); it != end; ++ it) {
+        for (std::vector<long>::iterator it = tmp.begin(); it != end; ++ it) {
             offset.insert(*it);
         }
     }
@@ -299,6 +306,34 @@ Response API::Insert(const std::string &tableName, const std::vector<element> en
     // 传入数据库文件名(dbName)，插入数据(entry)，当前表格(nt)
     // rmInsertRecord(dbName, entry, nt);
     return Response();
+}
+
+std::set<long> API::getMoreOffset(const std::string indexName, const element val) { // >
+    IndexIter it = im.upper_bound(indexName, val);
+    std::set<long> ret;
+    while (!it.isEnd()) {
+        ret.insert(it.get());
+        ++ it;
+    }
+    return ret;
+}
+
+std::set<long> API::getLessOffset(const std::string indexName, const element val) { // <
+    IndexIter it = im.lower_bound(indexName, val); // >=
+    IndexIter tmp = im.upper_bound(indexName, val); // >
+    if (it.get() != tmp.get()) -- it;
+    std::set<long> ret;
+    while (!it.isBegin()) {
+        ret.insert(it.get());
+        -- it;
+    }
+    return ret;
+}
+
+long API::getOffset(const std::string indexName, const element val) { // =
+    IndexIter it = im.find(indexName, val);
+    if (it.isEnd()) return -1;
+    else return it.get();
 }
 
 //#define LOCAL_TEST
