@@ -128,7 +128,7 @@ std::pair<std::string, int> CatalogManager::getIndex(const std::string &indexNam
     return IM.ask(indexName);
 }
 
-#define LOCAL_TEST
+//#define LOCAL_TEST
 #ifdef LOCAL_TEST
 int main() {
     CatalogManager cm;
