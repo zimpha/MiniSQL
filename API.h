@@ -7,6 +7,7 @@
 #include "filter.h"
 #include "CatalogManager.h"
 #include "bufferManager.h"
+#include "RecordManager.h"
 
 class API {
 public:
@@ -18,7 +19,7 @@ public:
     Response Delete(const std::string &tableName, const Filter &filter);
     Response Insert(const std::string &tableName, const std::vector<element> entry);
     CatalogManager cm;
-    RecordManger rm;
+    RecordManager rm;
     BFM bm;
 };
 

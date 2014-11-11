@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "API.h"
 #include "CatalogManager.h"
-//#include "RecordManager.h"
+#include "RecordManager.h"
 //#include "btree.h"
 
 // File name rule:

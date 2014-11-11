@@ -8,7 +8,7 @@
 #include "global.h"
 #include "CatalogManager.h"
 #include "bufferManager.h"
-//#include "RecordManager.h"
+#include "RecordManager.h"
 
 class IndexTableManager {
 public:
