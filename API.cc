@@ -11,6 +11,10 @@
 // Index: $tableName.$attrName.index
 // DB File: $tableName.db
 
+API::API() :rm(bm)
+{
+}
+
 Response API::createIndex(const std::string &indexName, const std::string &tableName, const std::string &attrName) {
     if (!cm.hasTable(tableName + ".table")) {
         return Response("Table does not exist");
