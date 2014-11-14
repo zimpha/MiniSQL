@@ -55,6 +55,8 @@ std::vector<std::vector<element> > RecordManager::rmSelectWithoutIndex(std::stri
     long offset = 0;
     bufferIter pBlock;
     Block block;
+    std::vector<std::vector<element> > queryResut;
+    std::vector<element> queryTuple;
 
     while (1) {
         pBlock = bm.BufferManagerRead(dbName, offset);
@@ -62,14 +64,32 @@ std::vector<std::vector<element> > RecordManager::rmSelectWithoutIndex(std::stri
         int endPoint = getInt(block, BLOCKSIZE - 4);
         int tuple;
         int tupleSize = nt.entrySize + 1;
+        int startPos = 1;
         for (tuple = 0; tuple <= endPoint - tupleSize; tuple += tupleSize) {
+            queryTuple.clear();
             for (auto attr : nt.attributes) {
-                if (attr.type==)
-                    //TODO
-            }                
+                switch (attr.type) {
+                    case 0:
+                        queryTuple.push_back(element(getInt(block, startPos)));
+                        startPos += sizeof(int);
+                        break;
+                    case 1:
+                        queryTuple.push_back(element(getFloat(block, startPos)));
+                        startPos += sizeof(float);
+                        break;
+                    case 2:
+                        queryTuple.push_back(element(getString(block, startPos)));
+                        startPos += attr.length;//Include +1
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (true == filter.test(queryTuple))
+                queryResut.push_back(queryTuple);
         }
         if (endPoint != BLOCKSIZE)
             break;
     }
-    
+    return queryResut;    
 }
