@@ -26,7 +26,7 @@ struct element {
     int i;
     double d;
     std::string s;
-    int type; // 0: int, 1: double, 2: string, -1:invalid
+    int type; // 0: int, 1: float, 2: string, -1:invalid
     element();
     element(int x);
     element(double x);

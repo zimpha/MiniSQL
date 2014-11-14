@@ -64,8 +64,11 @@ std::vector<std::vector<element> > RecordManager::rmSelectWithoutIndex(std::stri
         int endPoint = getInt(block, BLOCKSIZE - 4);
         int tuple;
         int tupleSize = nt.entrySize + 1;
-        int startPos = 1;
+        int startPos;
         for (tuple = 0; tuple <= endPoint - tupleSize; tuple += tupleSize) {
+            if (block.data[tuple] == 'N')
+                continue;
+            startPos = tuple + 1;
             queryTuple.clear();
             for (auto attr : nt.attributes) {
                 switch (attr.type) {

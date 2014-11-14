@@ -6,7 +6,7 @@
 #include "filter.h"
 
 /*
-The size of each record = entrySize + 1 byte (available:0,unavailable:1)
+The size of each record = 1 byte (available:'Y',unavailable:'N') + entrySize
 
 Use the last 4 byte in each record block to identify whether the block is the last:
 If the block is the last, it is a long int identify the next available position.
@@ -15,7 +15,7 @@ Otherwise, it is BLOCKSIZE.
 
 class RecordManager{
 public:
-    RecordManager(BFM bm);
+    RecordManager(BFM & bm);
     void rmInsertRecord(std::string dbName, const std::vector<element> entry, const Table nt);
 
     std::vector<std::vector<element> > rmSelectWithIndex(std::string dbName, long offset, const Filter filter, Table nt);
@@ -30,7 +30,7 @@ public:
     float getFloat(Block &block, int startPos);
     std::string getString(Block &block, int startPos);
 private:
-    BFM bm;
+    BFM & bm;
 };
 
 #endif
