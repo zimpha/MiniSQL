@@ -25,6 +25,10 @@ public:
     void rmDeleteWithoutIndex(std::string dbName, const Filter filter, const Table nt);
 
     std::set<long> rmGetAllOffsets(std::string dbName);
+
+    int getInt(Block &block, int startPos);
+    float getFloat(Block &block, int startPos);
+    std::string getString(Block &block, int startPos);
 private:
     BFM bm;
 };

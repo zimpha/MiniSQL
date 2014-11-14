@@ -12,6 +12,7 @@
 
 class API {
 public:
+    API();
     Response createIndex(const std::string &indexName, const std::string &tableName, const std::string &attrName);
     Response dropIndex(const std::string &indexName);
     Response createTable(const std::string &tableName, std::vector<AttrType> &data, int pk);
