@@ -121,21 +121,24 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
                 // offset == -1 表示没有这个val
                 // Record Manager return select result by using index
                 // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
-                // 
-                return Response(rm.rmSelectWithIndex(dbName, offset, filter, nt));
+                return Response(rm.RecordManagerRecordSelect(dbName, offset, filter, nt));
             }
         }
     }
-    
+
+    // SelectWithoutIndex is just an exceptional case of SelectWithIndex
+    /*
     if (filter.rules.empty()) {
         // Record Manager return select result without index
         // 传入数据库文件名（dbName），过滤器(filter)，当前表(nt)，返回select结果(类型vector<vector<element>>)
         return Response(rm.rmSelectWithoutIndex(dbName, filter, nt));
     }
+    */
+
     std::set<long> offset;
     // Record Manager get offset according to dbName
     // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
-    offset = rm.rmGetAllOffsets(dbName);
+    offset = rm.RecordManagerGetAllOffsets(dbName);
     for (size_t i = 0; i < filter.rules.size(); ++ i) {
         Rule rule = filter.rules[i];
         int attrIndex = rule.index;
@@ -191,7 +194,7 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
         std::vector<std::vector<element> > tmp;
         // Record Manager return select result by using index
         // 传入数据库文件名（dbName），偏移量(x)，过滤器(filter)，当前表(nt)，返回select结果(类型Response)
-        tmp = rm.rmSelectWithIndex(dbName, x, filter, nt);
+        tmp = rm.RecordManagerRecordSelect(dbName, x, filter, nt);
         for (size_t i = 0; i < tmp.size(); ++ i) {
             res.push_back(tmp[i]);
         }

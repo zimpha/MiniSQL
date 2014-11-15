@@ -20,15 +20,16 @@ public:
     void RecordManagerTableDetete(std::string dbName);
     void rmInsertRecord(std::string dbName, const std::vector<element> entry, const Table nt);
 
-    std::vector<std::vector<element> > rmSelectWithIndex(std::string dbName, long offset, const Filter filter, Table nt);
+    std::vector<std::vector<element> > RecordManagerRecordSelect(std::string dbName, long offset, const Filter filter, Table nt);
     std::vector<std::vector<element> > rmSelectWithoutIndex(std::string dbName, const Filter filter, Table nt);
 
     void rmDeleteWithIndex(std::string dbName, long offset, const Filter filter, const Table nt);    
     void rmDeleteWithoutIndex(std::string dbName, const Filter filter, const Table nt);
 
-    std::set<long> rmGetAllOffsets(std::string dbName);
+    std::set<long> RecordManagerGetAllOffsets(std::string dbName);
 
     int getInt(Block &block, int startPos);
+    void setInt(Block &block, int startPos, int num);
     float getFloat(Block &block, int startPos);
     std::string getString(Block &block, int startPos);
 private:
