@@ -227,23 +227,23 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
                 // offset == -1 表示没有这个val
                 // Record Manager delete records by using index
                 // 传入数据库文件名（dbName），偏移量(offset)，过滤器(filter)，当前表(nt)
-                rm.rmDeleteWithIndex(dbName, offset, filter, nt);
+                rm.RecordManagerRecordDelete(dbName, offset, filter, nt);
                 return Response();
             }
         }
     }
-    
+    /*
     if (filter.rules.empty()) {
         // Record Manager delete records without index
         // 传入数据库文件名（dbName），过滤器(filter)，当前表(nt)
         rm.rmDeleteWithoutIndex(dbName, filter, nt);
         return Response();
     }
-    
+    */
     std::set<long> offset;
     // Record Manager get offset according to dbName
     // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
-    offset = rm.rmGetAllOffsets(dbName);
+    offset = rm.RecordManagerGetAllOffsets(dbName);
     for (size_t i = 0; i < filter.rules.size(); ++ i) {
         Rule rule = filter.rules[i];
         int attrIndex = rule.index;
@@ -297,7 +297,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
     for (auto x : offset) {
         // Record Manager delete records by using index
         // 传入数据库文件名（dbName），偏移量(x)，过滤器(filter)，当前表(nt)
-        rm.rmDeleteWithIndex(dbName, x, filter, nt);
+        rm.RecordManagerRecordDelete(dbName, x, filter, nt);
     }
     return Response();
 }

@@ -75,9 +75,49 @@ void RecordManager::RecordManagerTableDetete(std::string dbName)
     bm.deleteFile(dbName);
 }
 
+// TODO: achieve reuse with RecordManagerRecordSelect
+void RecordManager::RecordManagerRecordDelete(std::string dbName, long offset, const Filter filter, Table nt)
+{
+    bufferIter pBlock;
+    Block block;
+    std::vector<element> queryTuple;
+    int tupleSize = nt.entrySize + 1;
+
+    pBlock = bm.BufferManagerRead(dbName, offset);
+    block = *pBlock;
+    int endPoint = getInt(block, BLOCKSIZE - 4);
+    int tuple;
+    int startPos;
+    for (tuple = 0; tuple <= endPoint - tupleSize; tuple += tupleSize) {
+        if (block.data[tuple] == 'N')
+            continue;
+        startPos = tuple + 1;
+        queryTuple.clear();
+        for (auto attr : nt.attributes) {
+            switch (attr.type) {
+                case 0:
+                    queryTuple.push_back(element(getInt(block, startPos)));
+                    startPos += sizeof(int);
+                    break;
+                case 1:
+                    queryTuple.push_back(element(getFloat(block, startPos)));
+                    startPos += sizeof(float);
+                    break;
+                case 2:
+                    queryTuple.push_back(element(getString(block, startPos)));
+                    startPos += attr.length;//Include +1
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (true == filter.test(queryTuple))
+            block.data[tuple] = 'N';
+    }
+}
+
 std::vector<std::vector<element> > RecordManager::RecordManagerRecordSelect(std::string dbName, long offset, const Filter filter, Table nt)
 {
-
     bufferIter pBlock;
     Block block;
     std::vector<std::vector<element> > queryResut;
@@ -130,6 +170,7 @@ std::set<long> RecordManager::RecordManagerGetAllOffsets(std::string dbName)
         block = *pBlock;
         endPoint = getInt(block, BLOCKSIZE - 4);
         allOffsets.insert(offset);
-    } while (endPoint==BLOCKSIZE)
-    
+        offset += BLOCKSIZE;
+    } while (endPoint == BLOCKSIZE);
+    return allOffsets;
 }
