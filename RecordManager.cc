@@ -1,4 +1,5 @@
 //#include <cstring>
+#include <cassert>
 #include "RecordManager.h"
 #include "bufferManager.h"
 
@@ -44,21 +45,32 @@ float RecordManager::getFloat(Block &block, int startPos)
     return info.floatFormat;
 }
 
+void RecordManager::setFloat(Block &block, int startPos, float num)
+{
+    FLOAT info;
+    info.floatFormat = num;
+    block.data[startPos] = info.charFormat[0];
+    block.data[startPos + 1] = info.charFormat[1];
+    block.data[startPos + 2] = info.charFormat[2];
+    block.data[startPos + 3] = info.charFormat[3];
+}
+
 std::string RecordManager::getString(Block &block, int startPos)
 {
-    //TODO: space for the string = user input + 1 !!
+    //NOTE: space for the string = user input + 1 !!
     char* str = (char*)block.data + startPos;
     std::string theString(str, sizeof(str));
     return theString;
 }
 
+void RecordManager::setString(Block &block, int startPos, std::string str)
+{
+    strcpy((char *)block.data + startPos, str.c_str);
+}
+
 RecordManager::RecordManager(BFM & bm) :bm(bm)
 {
 
-}
-std::set<long> rmGetAllOffsets(std::string dbName)
-{
-    
 }
 
 void RecordManager::RecordManagerTableCreate(std::string dbName)
@@ -75,16 +87,75 @@ void RecordManager::RecordManagerTableDetete(std::string dbName)
     bm.deleteFile(dbName);
 }
 
-// TODO: achieve reuse with RecordManagerRecordSelect
-void RecordManager::RecordManagerRecordDelete(std::string dbName, long offset, const Filter filter, Table nt)
+void RecordManager::RecordManagerRecordInsert(std::string dbName, const std::vector<element> & entry, Table & nt)
 {
+    long offset = (nt.blockCount - 1) * BLOCKSIZE;
     bufferIter pBlock;
-    Block block;
     std::vector<element> queryTuple;
     int tupleSize = nt.entrySize + 1;
 
     pBlock = bm.BufferManagerRead(dbName, offset);
-    block = *pBlock;
+    Block & block = *pBlock;
+    int endPoint = getInt(block, BLOCKSIZE - 4);
+    if (endPoint + tupleSize + 4 >= BLOCKSIZE) {
+        // The block is full;
+        setInt(block, BLOCKSIZE - 4, BLOCKSIZE);
+        offset += BLOCKSIZE;
+        Block newBlock;
+        newBlock.fileName = dbName;
+        newBlock.offset = offset;
+        InputRecord(newBlock, 0, entry, nt);
+        setInt(block, BLOCKSIZE - 4, tupleSize);
+        bm.BufferManagerWrite(newBlock);
+
+        nt.blockCount++;
+        nt.write();
+    }
+    else {
+        // The block is not full;
+        InputRecord(block, endPoint, entry, nt);
+        endPoint += tupleSize;
+        setInt(block, BLOCKSIZE - 4, endPoint);
+    }
+}
+
+void RecordManager::InputRecord(Block & block, int tuplePos, const std::vector<element> & entry, Table & nt)
+{
+    int startPos = tuplePos;
+    block.data[startPos] = 'Y';
+    startPos++;
+    int index = 0;
+    for (auto ele : entry) {
+        assert(nt.attributes[index].type == ele.type);
+        switch (ele.type) {
+            case 0:
+                setInt(block, startPos, ele.i);
+                startPos += sizeof(int);
+                break;
+            case 1:
+                setFloat(block, startPos, ele.f);
+                startPos += sizeof(float);
+                break;
+            case 2:
+                setString(block, startPos, ele.s);
+                startPos += nt.attributes[index].length;//Include +1
+                break;
+            default:
+                break;
+        }
+        index++;
+    }
+}
+
+// TODO: achieve code reuse with RecordManagerRecordSelect
+void RecordManager::RecordManagerRecordDelete(std::string dbName, long offset, const Filter & filter, Table & nt)
+{
+    bufferIter pBlock;
+    std::vector<element> queryTuple;
+    int tupleSize = nt.entrySize + 1;
+
+    pBlock = bm.BufferManagerRead(dbName, offset);
+    Block & block = *pBlock;
     int endPoint = getInt(block, BLOCKSIZE - 4);
     int tuple;
     int startPos;
@@ -116,16 +187,15 @@ void RecordManager::RecordManagerRecordDelete(std::string dbName, long offset, c
     }
 }
 
-std::vector<std::vector<element> > RecordManager::RecordManagerRecordSelect(std::string dbName, long offset, const Filter filter, Table nt)
+std::vector<std::vector<element> > RecordManager::RecordManagerRecordSelect(std::string dbName, long offset, const Filter & filter, Table & nt)
 {
     bufferIter pBlock;
-    Block block;
     std::vector<std::vector<element> > queryResut;
     std::vector<element> queryTuple;
     int tupleSize = nt.entrySize + 1;
 
     pBlock = bm.BufferManagerRead(dbName, offset);
-    block = *pBlock;
+    Block & block = *pBlock;
     int endPoint = getInt(block, BLOCKSIZE - 4);
     int tuple;
     int startPos;
@@ -158,19 +228,27 @@ std::vector<std::vector<element> > RecordManager::RecordManagerRecordSelect(std:
     return queryResut;
 }
 
-std::set<long> RecordManager::RecordManagerGetAllOffsets(std::string dbName)
-{    
-    bufferIter pBlock;
-    Block block;
-    int endPoint;
+std::set<long> RecordManager::RecordManagerGetAllOffsets(std::string dbName, Table & nt)
+{
     std::set<long> allOffsets;
+
+    bufferIter pBlock;
+    int endPoint;
     long offset = 0;
     do {
         pBlock = bm.BufferManagerRead(dbName, offset);
-        block = *pBlock;
+        Block & block = *pBlock;
         endPoint = getInt(block, BLOCKSIZE - 4);
         allOffsets.insert(offset);
         offset += BLOCKSIZE;
     } while (endPoint == BLOCKSIZE);
+
+    // This one should be the same as the code above.
+    /*
+    for (int i = 0; i < nt.blockCount; i++) {
+        allOffsets.insert(BLOCKSIZE * i);
+    }
+    */
+    assert(nt.blockCount == allOffsets.size);
     return allOffsets;
 }

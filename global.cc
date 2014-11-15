@@ -11,6 +11,7 @@ Table::Table() {
 Table::Table (const std::string &name, const std::vector<AttrType> &attributes) {
     this->entrySize = 0;
     this->name = name;
+    this->blockCount = 1;
     for (size_t i = 0; i < attributes.size(); ++ i) {
         switch (attributes[i].type) {
             case 0: entrySize += sizeof(int); break;
@@ -27,6 +28,7 @@ void Table::write() {
     fout << name << std::endl;
     fout << entrySize << std::endl;
     fout << attributes.size() << std::endl;
+    fout << blockCount << std::endl;
     for (size_t i = 0; i < attributes.size(); ++ i) {
         fout << attributes[i].name << std::endl;
         fout << attributes[i].type << std::endl;

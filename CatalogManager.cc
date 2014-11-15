@@ -68,7 +68,7 @@ Table CatalogManager::loadTable(const std::string &tableName) {
     Table nt;
     int attrSum;
     std::ifstream fin((tableName).c_str());
-    fin >> nt.name >> nt.entrySize >> attrSum;
+    fin >> nt.name >> nt.entrySize >> attrSum >> nt.blockCount;
     for (int i = 0, n; i < attrSum; ++ i) {
         AttrType attr;
         fin >> attr.name >> attr.type >> attr.length >> attr.unique;

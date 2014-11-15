@@ -324,7 +324,8 @@ Response API::Insert(const std::string &tableName, const std::vector<element> en
     }
     // Record Manager insert record
     // 传入数据库文件名(dbName)，插入数据(entry)，当前表格(nt)
-    rm.rmInsertRecord(dbName, entry, nt);
+    rm.RecordManagerRecordInsert(dbName, entry, nt);
+    // NOTE: table information may be changed after that
     return Response();
 }
 

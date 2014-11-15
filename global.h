@@ -17,6 +17,7 @@ struct Table {
     int entrySize;
     std::string name;
     std::vector<AttrType> attributes;
+    int blockCount;
     Table (const std::string &name, const std::vector<AttrType> &attributes);
     Table ();
     void write();
@@ -24,7 +25,7 @@ struct Table {
 
 struct element {
     int i;
-    double d;
+    float f;
     std::string s;
     int type; // 0: int, 1: float, 2: string, -1:invalid
     element();
