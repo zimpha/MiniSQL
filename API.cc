@@ -73,7 +73,12 @@ Response API::createTable(const std::string &tableName, std::vector<AttrType> &d
     Table nt = cm.createTable(tableName + ".table", data);
     nt.attributes[pk].unique = true;
     nt.write();
-    
+
+    std::string dbName = tableName + ".db";
+    // Record Manager creat database
+    // 传入数据库文件名(dbName)
+    rm.RecordManagerTableCreate(dbName);
+
     return createIndex(tableName + ".PrimaryKeyDefault", tableName, nt.attributes[pk].name);
 }
 
@@ -82,6 +87,12 @@ Response API::dropTable(const std::string &tableName) {
         return Response("Table does not exist");
     }
     cm.dropTable(tableName+".table");
+
+    std::string dbName = tableName + ".db";
+    // Record Manager clear database
+    // 传入数据库文件名(dbName)
+    rm.RecordManagerTableDetete(dbName);
+
     return Response();
 }
 

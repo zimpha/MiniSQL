@@ -16,6 +16,8 @@ Otherwise, it is BLOCKSIZE.
 class RecordManager{
 public:
     RecordManager(BFM & bm);
+    void RecordManagerTableCreate(std::string dbName);
+    void RecordManagerTableDetete(std::string dbName);
     void rmInsertRecord(std::string dbName, const std::vector<element> entry, const Table nt);
 
     std::vector<std::vector<element> > rmSelectWithIndex(std::string dbName, long offset, const Filter filter, Table nt);

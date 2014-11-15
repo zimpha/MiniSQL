@@ -131,7 +131,7 @@ void Interpreter::parse(std::string input) {
                     newAttr.name = attrName;
                     if (dataType == "char") {
                         newAttr.type = 2;
-                        newAttr.length = length;
+                        newAttr.length = length + 1;
                     }
                     else if (dataType == "int") {
                         newAttr.type = 0;

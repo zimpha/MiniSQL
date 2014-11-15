@@ -100,10 +100,7 @@ void CatalogManager::dropTable(const std::string &tableName) {
             bm.deleteFile(indexFileName);
         }
     }
-    std::string dbName = name + ".db";
-    // Record Manager clear database
-    // 传入数据库文件名(dbName)
-    // rmClear(dbName);
+
     remove((tableName).c_str());
 }
 

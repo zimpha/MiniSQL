@@ -50,6 +50,17 @@ std::set<long> rmGetAllOffsets(std::string dbName)
 {
     
 }
+
+void RecordManager::RecordManagerTableCreate(std::string dbName)
+{
+
+}
+
+void RecordManager::RecordManagerTableDetete(std::string dbName)
+{
+
+}
+
 std::vector<std::vector<element> > RecordManager::rmSelectWithoutIndex(std::string dbName, const Filter filter, Table nt)
 {
     long offset = 0;
@@ -57,13 +68,13 @@ std::vector<std::vector<element> > RecordManager::rmSelectWithoutIndex(std::stri
     Block block;
     std::vector<std::vector<element> > queryResut;
     std::vector<element> queryTuple;
+    int tupleSize = nt.entrySize + 1;
 
     while (1) {
         pBlock = bm.BufferManagerRead(dbName, offset);
         block = *pBlock;
         int endPoint = getInt(block, BLOCKSIZE - 4);
         int tuple;
-        int tupleSize = nt.entrySize + 1;
         int startPos;
         for (tuple = 0; tuple <= endPoint - tupleSize; tuple += tupleSize) {
             if (block.data[tuple] == 'N')
