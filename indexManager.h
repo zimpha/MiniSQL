@@ -3,54 +3,41 @@
 
 #include "global.h"
 #include "bufferManager.h"
+#include <string>
+#include <set>
+#include <map>
 
 struct IndexIter;
+struct Node;
 
 struct IndexManager {
-    Reponse create(const std::string &indexName, const Table &table, const AttrType &attr);
+    IndexManager(BFM &);
 
-    Reponse drop(const std::string &indexName);
+    Response create(const std::string &indexName, const Table &table, const AttrType &attr);
 
-    bool check(const Table &table, const AttrType &attr);
+    Response drop(const std::string &indexName);
 
     Response insert(const std::string &indexName, const element &e, long offset);
 
     Response erase(const std::string &indexName, const element &e);
 
-    //如果没有，返回isEnd()为true的迭代器，类似STL左闭右开
-    IndexIter find(const std::string &indexName, const element &e);
+    //返回对应offset, -1表示没找到
+    long find(const std::string &indexName, const element &e);
 
-    IndexIter lower_bound(const std::string &indexName, const element &e);
+    std::set <long> greater(const std::string &indexName, const element &e);
 
-    IndexIter upper_bound(const std::string &indexName, const element &e);
+    std::set <long> less(const std::string &indexName, const element &e);
 
-private:
-    BFM bfm;
-};
+    //返回[lhs, rhs]这个区间的内容
+    std::set <long> inRange(const std::string &indexName, const element &lhs, const element &rhs);
 
-struct IndexIter {
-    bool isBegin();
-
-    bool isEnd();
-
-    void set(long offset);
-
-    long get();
-
-    element getKey();
-
-    IndexIter& operator ++();
-
-    IndexIter operator ++(int);
-
-    IndexIter& operator --();
-
-    IndexIter operator --(int);
+    void load();
+    void save();
 
 private:
-    element key;
-    long value;
-    long treeNodeOffset;
+    BFM &bfm;
+    std::map <element, long> mp;
+    std::string currentFile;
 };
 
 #endif
