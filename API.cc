@@ -330,31 +330,15 @@ Response API::Insert(const std::string &tableName, const std::vector<element> en
 }
 
 std::set<long> API::getMoreOffset(const std::string indexName, const element val) { // >
-    IndexIter it = im.upper_bound(indexName, val);
-    std::set<long> ret;
-    while (!it.isEnd()) {
-        ret.insert(it.get());
-        ++ it;
-    }
-    return ret;
+    return im.greater(indexName, val);
 }
 
 std::set<long> API::getLessOffset(const std::string indexName, const element val) { // <
-    IndexIter it = im.lower_bound(indexName, val); // >=
-    IndexIter tmp = im.upper_bound(indexName, val); // >
-    if (it.get() != tmp.get()) -- it;
-    std::set<long> ret;
-    while (!it.isBegin()) {
-        ret.insert(it.get());
-        -- it;
-    }
-    return ret;
+    return im.less(indexName, val);
 }
 
 long API::getOffset(const std::string indexName, const element val) { // =
-    IndexIter it = im.find(indexName, val);
-    if (it.isEnd()) return -1;
-    else return it.get();
+    return im.find(indexName, val);
 }
 
 //#define LOCAL_TEST
