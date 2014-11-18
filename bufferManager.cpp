@@ -86,6 +86,5 @@ void BFM::deleteFile(const string &fileName)
     for (; tIt!=table.end() && tIt->first.first==fileName; ){
         BufferManagerWrite(*(tIt++->second));
     }
-    string command = "rm "+fileName;
-    system(command.c_str());
+    remove(fileName.c_str());
 }
