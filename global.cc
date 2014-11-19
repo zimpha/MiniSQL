@@ -44,6 +44,13 @@ void Table::write() {
     fout.close();
 }
 
+int Table::getIndexID(const AttrType &x) {
+    for (size_t i = 0; i < attributes.size(); ++ i) {
+        if (attributes[i].name == x.name) return i;
+    }
+    return -1;
+}
+
 bool AttrType::operator == (const AttrType &rhs) const {
     return type == rhs.type && length == rhs.length && unique == rhs.unique &&
            indices == rhs.indices && name == rhs.name;
