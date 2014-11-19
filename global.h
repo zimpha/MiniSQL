@@ -20,6 +20,7 @@ struct Table {
     int blockCount;
     Table (const std::string &name, const std::vector<AttrType> &attributes);
     Table ();
+    int getIndexID(const AttrType &x);
     void write();
 };
 

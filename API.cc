@@ -39,10 +39,10 @@ Response API::createIndex(const std::string &indexName, const std::string &table
     nt.attributes[attrIndex].indices.insert(indexName);
     nt.write();
     if (nt.attributes[attrIndex].indices.size() == 1) {
-        // 这个是给Index Manager的吧？
-        // Record Manager add index
+        // Index Manager add index
         // 提供index文件名和当前表，以及attrIndex给Record Manager
         // rmAddIndex(tableName+".db",tableName+"."+nt.attributes[attrIndex].name+".index",nt,attrIndex);
+        im.create(tableName+"."+nt.attributes[attrIndex].name+".index", nt, nt.attributes[attrIndex]);
     }
     return Response();
 }
