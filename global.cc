@@ -58,15 +58,15 @@ bool AttrType::operator == (const AttrType &rhs) const {
 
 element::element(): type(-1) { }
 element::element(int x): i(x), type(0) {}
-element::element(float x): d(x), type(1) {}
-element::element(double x): d(x), type(1) {}
+element::element(float x): f(x), type(1) {}
+element::element(double x): f(x), type(1) {}
 element::element(std::string x): s(x), type(2) {}
 element::element(const char *x): s(x), type(2) {}
 
 void element::print() const {
     switch (type) {
         case 0: std::cout << i; return;
-        case 1: std::cout << d; return;
+        case 1: std::cout << f; return;
         case 2: std::cout << s; return;
         default: assert(false);
     }
@@ -76,7 +76,7 @@ bool element::operator < (const element &rhs) const {
     assert(type == rhs.type);
     switch (type) {
         case 0: return i < rhs.i;
-        case 1: return d < rhs.d;
+        case 1: return f < rhs.f;
         case 2: return s < rhs.s;
         default: assert(false);
     }
@@ -86,7 +86,7 @@ bool element::operator == (const element &rhs) const {
     assert(type == rhs.type);
     switch (type) {
         case 0: return i == rhs.i;
-        case 1: return fabs(d - rhs.d) < 1e-8;
+        case 1: return fabs(f - rhs.f) < 1e-8;
         case 2: return s == rhs.s;
         default: assert(false);
     }
