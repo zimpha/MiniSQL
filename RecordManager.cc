@@ -65,7 +65,7 @@ std::string RecordManager::getString(Block &block, int startPos)
 
 void RecordManager::setString(Block &block, int startPos, std::string str)
 {
-    strcpy((char *)block.data + startPos, str.c_str);
+    strcpy((char *)block.data + startPos, str.c_str());
 }
 
 RecordManager::RecordManager(BFM & bm) :bm(bm)
@@ -249,6 +249,6 @@ std::set<long> RecordManager::RecordManagerGetAllOffsets(std::string dbName, Tab
         allOffsets.insert(BLOCKSIZE * i);
     }
     */
-    assert(nt.blockCount == allOffsets.size);
+    assert(nt.blockCount == allOffsets.size());
     return allOffsets;
 }
