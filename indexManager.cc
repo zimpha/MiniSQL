@@ -1,4 +1,5 @@
 #include "indexManager.h"
+#include "RecordManager.h"
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -9,7 +10,7 @@
 #include <algorithm>
 using namespace std;
 
-const int SZ = (BLOCKSIZE - sizeof(long) - sizeof(int)) / (sizeof(long) + sizeof(element)) - 1;
+const int SZ = (BLOCKSIZE - sizeof(long) - sizeof(int) - sizeof(bool) * 2) / (sizeof(long) + sizeof(element)) - 1;
 const std::string info_index_exist = "Index already exist.";
 
 
@@ -78,8 +79,20 @@ void touch(const string &fileName) {
     fclose(f);
 }
 
-vector < pair <element, long> > getRecord(const Table &table, const AttrType &attr) {
-    //TODO
+vector < pair <element, long> > getRecord(BFM &bfm, const string &dbName, Table &table, const AttrType &attr) {
+    RecordManager rm(bfm);
+    set<long> s = rm.RecordManagerGetAllOffsets(dbName, table);
+    Filter filter;
+    vector < pair <element, long> > v;
+    int idx = table.getIndexID(attr);
+    if (idx == -1) return v;
+    for (long offset : s) {
+        vector < vector <element> > res = rm.RecordManagerRecordSelect(dbName, offset, filter, table);
+        for (vector <element> &u : res) {
+            v.push_back(make_pair(u[idx], offset));
+        }
+    }
+    return v;
 }
 
 BTNode blockToNode(const Block &b) {
@@ -219,14 +232,14 @@ IndexManager::IndexManager(BFM &bfm): bfm(bfm) {
     mp.clear();
 }
 
-Response IndexManager::create(const string &indexName, const Table &table, const AttrType &attr) {
+Response IndexManager::create(const string &indexName, const string &dbName, Table &table, const AttrType &attr) {
     Response res;
     if (isFileExist(getIndexFileName(indexName))) {
         return badRes(info_index_exist);
     } else {
         save();
         currentFile = getIndexFileName(indexName);
-        mp = build(getRecord(table, attr));
+        mp = build(getRecord(bfm, dbName, table, attr));
         save();
         return goodRes();
     }

@@ -13,7 +13,7 @@ struct Node;
 struct IndexManager {
     IndexManager(BFM &);
 
-    Response create(const std::string &indexName, const Table &table, const AttrType &attr);
+    Response create(const std::string &indexName, const std::string &dbName, Table &table, const AttrType &attr);
 
     Response drop(const std::string &indexName);
 
