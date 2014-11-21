@@ -109,7 +109,7 @@ bool CatalogManager::hasIndex(const std::string &indexName) {
 }
 
 bool CatalogManager::createIndex(const std::string &tableName, const std::string &indexName, int attrIndex) {
-    if (!hasIndex(indexName)) return false;
+    if (hasIndex(indexName)) return false;
     IM.insert(indexName, tableName, attrIndex);
     return true;
 }
@@ -124,12 +124,3 @@ std::pair<std::string, int> CatalogManager::getIndex(const std::string &indexNam
     assert(hasIndex(indexName));
     return IM.ask(indexName);
 }
-
-//#define LOCAL_TEST
-#ifdef LOCAL_TEST
-int main() {
-    CatalogManager cm;
-    cm.dropTable("ddd.table");
-    return 0;
-}
-#endif

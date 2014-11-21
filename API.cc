@@ -340,11 +340,3 @@ std::set<long> API::getLessOffset(const std::string indexName, const element val
 long API::getOffset(const std::string indexName, const element val) { // =
     return im.find(indexName, val);
 }
-
-//#define LOCAL_TEST
-#ifdef LOCAL_TEST
-
-int main() {
-    return 0;
-}
-#endif

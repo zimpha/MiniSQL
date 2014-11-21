@@ -61,12 +61,15 @@ void Interpreter::parse(std::string input) {
     if (input == "") return;
     
     for (size_t i = 0; i < input.length(); ++ i) {
-        if (input[i] == '(' || input[i] == ')' || input[i] == '.') {
+        if (input[i] == '(' || input[i] == ')' || input[i] == ',') {
             input.insert(i, " ");
             input.insert(i + 2, " ");
             i += 2;
         }
     }
+#ifdef DEBUG
+    std::cout << input << std::endl;
+#endif
     std::strstream sin;
     sin << input;
 
