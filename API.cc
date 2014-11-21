@@ -11,7 +11,7 @@
 // Index: $tableName.$attrName.index
 // DB File: $tableName.db
 
-API::API() :rm(bm)
+API::API() :rm(bm), im(bm)
 {
 }
 
@@ -138,7 +138,7 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
     std::set<long> offset;
     // Record Manager get offset according to dbName
     // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
-    offset = rm.RecordManagerGetAllOffsets(dbName);
+    offset = rm.RecordManagerGetAllOffsets(dbName, nt);
     for (size_t i = 0; i < filter.rules.size(); ++ i) {
         Rule rule = filter.rules[i];
         int attrIndex = rule.index;
@@ -207,7 +207,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
         return Response("Table does not exist");
     }
     
-    const Table nt = cm.loadTable(tableName + ".table");
+    Table nt = cm.loadTable(tableName + ".table");
     std::string dbName = tableName + ".db";
     for (size_t i = 0; i < filter.rules.size(); ++ i) {
         element val = filter.rules[i].val;
@@ -243,7 +243,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
     std::set<long> offset;
     // Record Manager get offset according to dbName
     // 传入数据库文件名(daName)，返回一个offset的集合(类型set)
-    offset = rm.RecordManagerGetAllOffsets(dbName);
+    offset = rm.RecordManagerGetAllOffsets(dbName, nt);
     for (size_t i = 0; i < filter.rules.size(); ++ i) {
         Rule rule = filter.rules[i];
         int attrIndex = rule.index;
@@ -306,7 +306,7 @@ Response API::Insert(const std::string &tableName, const std::vector<element> en
     if (!cm.hasTable(tableName + ".table")) {
         return Response("Table does not exist");
     }
-    const Table nt = cm.loadTable(tableName + ".table");
+    Table nt = cm.loadTable(tableName + ".table");
     std::string dbName = tableName + ".db";
     if (nt.attributes.size() != entry.size()) {
         return Response("Type mismatch");

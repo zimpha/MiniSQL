@@ -5,7 +5,7 @@
 int main() {
     std::string buf;
     Interpreter ip;
-    while (getline(cin, buf)) {
+    while (std::getline(std::cin, buf)) {
         std::cout << ">> ";
         ip.process(buf);
     }
