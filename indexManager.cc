@@ -133,6 +133,7 @@ namespace BT {
         C = pool;
         C->n = 0;
         C->isLeaf = C->isRoot = 1;
+        return C;
     }
 
     BTNode save(const BTNode &p) {
@@ -140,6 +141,7 @@ namespace BT {
         FILE *file = fopen(name.c_str(), "r+b");
         writeContent(file, p.offset, &p, sizeof(p));
         fclose(file);
+        return BTNode();
     }
 
     void insertParent(map <long, long> &parent, BTNode p, const element &e, BTNode q) {
