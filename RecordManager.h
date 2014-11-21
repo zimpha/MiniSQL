@@ -4,6 +4,7 @@
 #include <string>
 #include "global.h"
 #include "filter.h"
+#include "bufferManager.h"
 
 /*
 The size of each record = 1 byte (available:'Y',unavailable:'N') + entrySize
@@ -22,7 +23,7 @@ public:
     std::vector<std::vector<element> > RecordManagerRecordSelect(std::string dbName, long offset, const Filter & filter, Table & nt);
     void RecordManagerRecordDelete(std::string dbName, long offset, const Filter & filter, Table & nt);
     std::set<long> RecordManagerGetAllOffsets(std::string dbName, Table & nt);
-private:
+
     BFM & bm;
 
     int getInt(Block &block, int startPos);

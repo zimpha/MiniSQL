@@ -341,7 +341,7 @@ void Interpreter::printSelectResult(const Table &nt, const Response &res) {
                     sin << res.result[i][j].i;
                     break;
                 case 1:
-                    sin << res.result[i][j].d;
+                    sin << res.result[i][j].f;
                     break;
                 case 2:
                     sin << res.result[i][j].s;
