@@ -11,7 +11,7 @@
 // Index: $tableName.$attrName.index
 // DB File: $tableName.db
 
-API::API() :rm(bm), im(bm)
+API::API() :im(bm),rm(bm,im)
 {
 }
 

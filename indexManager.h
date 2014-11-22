@@ -38,8 +38,8 @@ struct IndexManager {
 
 private:
     BFM &bfm;
-    static std::map <element, long> mp;
-    static std::string currentFile;
+    std::map <element, long> mp;
+    std::string currentFile;
 };
 
 #endif

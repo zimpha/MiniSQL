@@ -2,6 +2,7 @@
 #include <cassert>
 #include "RecordManager.h"
 #include "bufferManager.h"
+#include "indexManager.h"
 
 
 union INT{
@@ -68,7 +69,7 @@ void RecordManager::setString(Block &block, int startPos, std::string str)
     strcpy((char *)block.data + startPos, str.c_str());
 }
 
-RecordManager::RecordManager(BFM & bm) :bm(bm), im(im)
+RecordManager::RecordManager(BFM & bm, IndexManager & im) :bm(bm), im(im)
 {
 
 }
@@ -117,7 +118,12 @@ void RecordManager::RecordManagerRecordInsert(std::string dbName, const std::vec
         endPoint += tupleSize;
         setInt(block, BLOCKSIZE - 4, endPoint);
     }
-
+    std::string tableName = dbName.substr(0, dbName.find('.'));
+    for (int i = 0; i < nt.attributes.size(); i++) {
+        for (auto index : nt.attributes[i].indices) {
+            im.insert(tableName+"."+nt.attributes[i].name, entry[i], offset);
+        }
+    }
 }
 
 void RecordManager::InputRecord(Block & block, int tuplePos, const std::vector<element> & entry, Table & nt)
@@ -183,9 +189,18 @@ void RecordManager::RecordManagerRecordDelete(std::string dbName, long offset, c
                     break;
             }
         }
-        if (true == filter.test(queryTuple))
+        if (true == filter.test(queryTuple)) {
             block.data[tuple] = 'N';
+            std::string tableName = dbName.substr(0, dbName.find('.'));
+            for (int i = 0; i < nt.attributes.size(); i++) {
+                for (auto index : nt.attributes[i].indices) {
+                    im.erase(tableName + "." + nt.attributes[i].name, queryTuple[i]);
+
+                }
+            }
+        }
     }
+
 }
 
 std::vector<std::vector<element> > RecordManager::RecordManagerRecordSelect(std::string dbName, long offset, const Filter & filter, Table & nt)

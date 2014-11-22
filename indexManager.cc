@@ -13,8 +13,8 @@ using namespace std;
 const int SZ = (BLOCKSIZE - sizeof(long) - sizeof(int) - sizeof(bool) * 2) / (sizeof(long) + sizeof(element)) - 1;
 const std::string info_index_exist = "Index already exist.";
 
-map <element, long> IndexManager::mp;
-string IndexManager::currentFile;
+//map <element, long> IndexManager::mp;
+//string IndexManager::currentFile;
 
 struct BTNode {
     bool isLeaf;
@@ -82,7 +82,8 @@ void touch(const string &fileName) {
 }
 
 vector < pair <element, long> > getRecord(BFM &bfm, const string &dbName, Table &table, const AttrType &attr) {
-    RecordManager rm(bfm);
+    IndexManager im(bfm);
+    RecordManager rm(bfm,im);
     if (DEBUG) cout << "RecordManagerGetAllOffsets " << dbName << endl;
     set<long> s = rm.RecordManagerGetAllOffsets(dbName, table);
     if (DEBUG) cout << "RecordManagerGetAllOffsets " << dbName << " done." << endl;

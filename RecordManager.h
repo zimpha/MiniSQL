@@ -5,6 +5,7 @@
 #include "global.h"
 #include "filter.h"
 #include "bufferManager.h"
+#include "indexManager.h"
 
 /*
 The size of each record = 1 byte (available:'Y',unavailable:'N') + entrySize
