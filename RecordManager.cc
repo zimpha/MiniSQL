@@ -59,7 +59,7 @@ std::string RecordManager::getString(Block &block, int startPos)
 {
     //NOTE: space for the string = user input + 1 !!
     char* str = (char*)block.data + startPos;
-    std::string theString(str, sizeof(str));
+    std::string theString(str, strlen(str));
     return theString;
 }
 
