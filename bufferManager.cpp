@@ -1,4 +1,5 @@
 #include "bufferManager.h"
+#include <iostream>
 
 using namespace std;
 
@@ -22,6 +23,9 @@ bufferIter BFM::BufferManagerRead(const string &fileName, long offset)
 	else{ //not in the buffer
 
         FILE *inFile = fopen(fileName.c_str(), "rb");
+        if(inFile==NULL){
+            cerr<<"ERROR: Open file "<<fileName<<" failed.\n";
+        }
         fseek(inFile, offset, SEEK_SET);
         Block tmp;
         tmp.fileName = fileName;
@@ -54,7 +58,18 @@ void BFM::BufferManagerPin(Block &b)
 
 void BFM::BufferManagerWrite(const Block &b)
 {
-    FILE *outFile = fopen(b.fileName.c_str(), "wb");
+    FILE *fp = fopen(b.fileName.c_str(), "rb");
+    FILE *outFile;
+    if (fp==NULL){
+        outFile = fopen(b.fileName.c_str(), "wb");
+    }
+    else{
+        outFile = fopen(b.fileName.c_str(), "rb+");
+    }
+    if(outFile==NULL){
+        cerr<<"ERROR: Open file "<<b.fileName<<" failed.\n";
+        return;
+    }
     fseek(outFile, b.offset, SEEK_SET);
     fwrite(&b.data, 1, BLOCKSIZE, outFile);
     fclose(outFile);
