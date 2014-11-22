@@ -58,7 +58,14 @@ void BFM::BufferManagerPin(Block &b)
 
 void BFM::BufferManagerWrite(const Block &b)
 {
-    FILE *outFile = fopen(b.fileName.c_str(), "rb+");
+    FILE *fp = fopen(b.fileName.c_str(), "rb");
+    FILE *outFile;
+    if (fp==NULL){
+        outFile = fopen(b.fileName.c_str(), "wb");
+    }
+    else{
+        outFile = fopen(b.fileName.c_str(), "rb+");
+    }
     if(outFile==NULL){
         cerr<<"ERROR: Open file "<<b.fileName<<" failed.\n";
         return;
