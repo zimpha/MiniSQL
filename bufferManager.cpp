@@ -2,6 +2,9 @@
 
 using namespace std;
 
+map <tag, bufferIter> BFM::table;
+list <Block> BFM::buffer;
+
 bufferIter BFM::BufferManagerRead(const string &fileName, long offset)
 {
 	tableIter it = table.find(make_pair(fileName,offset));
