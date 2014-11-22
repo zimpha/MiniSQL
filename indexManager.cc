@@ -9,7 +9,7 @@
 #include <map>
 #include <algorithm>
 using namespace std;
-#define DEBUG true
+#define DEBUG false
 const int SZ = (BLOCKSIZE - sizeof(long) - sizeof(int) - sizeof(bool) * 2) / (sizeof(long) + sizeof(element)) - 1;
 const std::string info_index_exist = "Index already exist.";
 

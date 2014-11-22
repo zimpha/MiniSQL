@@ -265,6 +265,6 @@ std::set<long> RecordManager::RecordManagerGetAllOffsets(std::string dbName, Tab
         allOffsets.insert(BLOCKSIZE * i);
     }
     */
-    assert(nt.blockCount == allOffsets.size());
+    //assert(nt.blockCount == allOffsets.size());
     return allOffsets;
 }
