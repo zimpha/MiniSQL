@@ -9,7 +9,7 @@
 #include <map>
 #include <algorithm>
 using namespace std;
-
+#define DEBUG true
 const int SZ = (BLOCKSIZE - sizeof(long) - sizeof(int) - sizeof(bool) * 2) / (sizeof(long) + sizeof(element)) - 1;
 const std::string info_index_exist = "Index already exist.";
 
@@ -81,16 +81,24 @@ void touch(const string &fileName) {
 
 vector < pair <element, long> > getRecord(BFM &bfm, const string &dbName, Table &table, const AttrType &attr) {
     RecordManager rm(bfm);
+    if (DEBUG) cout << "RecordManagerGetAllOffsets " << dbName << endl;
     set<long> s = rm.RecordManagerGetAllOffsets(dbName, table);
+    if (DEBUG) cout << "RecordManagerGetAllOffsets " << dbName << " done." << endl;
     Filter filter;
     vector < pair <element, long> > v;
+    if (DEBUG) cout << "getIndexID" << endl;
     int idx = table.getIndexID(attr);
+    if (DEBUG) cout << "getIndexID done." << endl;
     if (idx == -1) return v;
     for (long offset : s) {
+        if (DEBUG) cout << "Select" << endl;
         vector < vector <element> > res = rm.RecordManagerRecordSelect(dbName, offset, filter, table);
+        if (DEBUG) cout << "Select done" << endl;
+        if (DEBUG) cout << "push_back" << endl;
         for (vector <element> &u : res) {
             v.push_back(make_pair(u[idx], offset));
         }
+        if (DEBUG) cout << "push_back done" << endl;
     }
     return v;
 }
@@ -235,10 +243,13 @@ IndexManager::IndexManager(BFM &bfm): bfm(bfm) {
 }
 
 Response IndexManager::create(const string &indexName, const string &dbName, Table &table, const AttrType &attr) {
+    if (DEBUG) cout << "IndexManagerCreate begin" << endl;
     Response res;
     if (isFileExist(getIndexFileName(indexName))) {
+        if (DEBUG) cout << "if" << endl;
         return badRes(info_index_exist);
     } else {
+        if (DEBUG) cout << "else" << endl;
         save();
         currentFile = getIndexFileName(indexName);
         mp = build(getRecord(bfm, dbName, table, attr));
@@ -321,6 +332,7 @@ set <long> IndexManager::inRange(const std::string &indexName, const element &lh
 }
 
 void IndexManager::save() {
+    if (currentFile.empty()) return;
     FILE *file = fopen(currentFile.c_str(), "wb");
     int tmp = mp.size();
     fwrite(&tmp, sizeof(int), 1, file);
@@ -332,8 +344,9 @@ void IndexManager::save() {
 }
 
 void IndexManager::load() {
-    FILE *file = fopen(currentFile.c_str(), "rb");
     mp.clear();
+    if (currentFile.empty()) return;
+    FILE *file = fopen(currentFile.c_str(), "rb");
     int n = 0;
     element lhs;
     long rhs;
