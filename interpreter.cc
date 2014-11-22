@@ -56,6 +56,7 @@ element Interpreter::parseElement(std::string data) {
 
 void Interpreter::parse(std::string input) {
     if (input == "quit") {
+        api.bm.BufferManagerFlush();
         exit(0);
     }
     if (input == "") return;
