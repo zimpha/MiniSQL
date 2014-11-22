@@ -11,19 +11,20 @@
 #include "CatalogManager.h"
 #include "interpreter.h"
 
-void Interpreter::process(std::string line) {
+bool Interpreter::process(std::string line) {
     static std::string cmd;
     for (size_t i = 0; i < line.length(); ++ i) {
         if (line[i] == ';') {
             std::string now(cmd);
             cmd = "";
-            parse(now);
+            if (parse(now)) return true;
         }
         else cmd += line[i];
     }
+    return false;
 }
 
-void Interpreter::execfile(std::string filename) {
+bool Interpreter::execfile(std::string filename) {
     std::ifstream fin((filename).c_str());
     if (!fin) std::cout << "file does not exist" << std::endl;
     else {
@@ -33,9 +34,10 @@ void Interpreter::execfile(std::string filename) {
             while (len && (buf[len - 1] == '\n' || buf[len - 1] == '\r')) {
                 len --;
             }
-            process(buf.substr(0, len));
+            if (process(buf.substr(0, len))) return true;
         }
     }
+    return false;
 }
 
 element Interpreter::parseElement(std::string data) {
@@ -54,20 +56,20 @@ element Interpreter::parseElement(std::string data) {
     }
 }
 
-void Interpreter::parse(std::string input) {
+bool Interpreter::parse(std::string input) {
     if (input == "quit") {
         api.bm.BufferManagerFlush();
         printf("Flush finished\n");
-        exit(0);
+        return true;
     }
 
     if (input == "flush") {
         api.bm.BufferManagerFlush();
         printf("Flush finished\n");
-        return;
+        return false;
     }
 
-    if (input == "") return;
+    if (input == "") return false;
     
     for (size_t i = 0; i < input.length(); ++ i) {
         if (input[i] == '(' || input[i] == ')' || input[i] == ',') {
@@ -76,9 +78,6 @@ void Interpreter::parse(std::string input) {
             i += 2;
         }
     }
-#ifdef DEBUG
-    std::cout << input << std::endl;
-#endif
     std::strstream sin;
     sin << input;
 
@@ -88,7 +87,7 @@ void Interpreter::parse(std::string input) {
     if (oper == "execfile") {
         std::string filename;
         sin >> filename;
-        execfile(filename);
+        return execfile(filename);
     }
     else if (oper == "create") {
         std::string type;
@@ -157,21 +156,23 @@ void Interpreter::parse(std::string input) {
                 }
                 else {
                     std::cout << "unrecognized data type: " << dataType << std::endl;
-                    return;
+                    return false;
                 }
                 data.push_back(newAttr);
             }
             if (pk == 0x3f3f3f3f) {
                 std::cout << "don't set primary key or no such attribute" << std::endl;
-                return;
+                return false;
             }
             else {
                 Response res = api.createTable(tableName, data, pk);
                 if (!res.succeed) {
                     std::cout << res.info << std::endl;
+                    return false;
                 }
                 else {
                     std::cout << "OK" << std::endl;
+                    return false;
                 }
             }
         }
@@ -183,14 +184,16 @@ void Interpreter::parse(std::string input) {
             Response res = api.createIndex(indexName, tableName, attrName);
             if (!res.succeed) {
                 std::cout << res.info << std::endl;
+                return false;
             }
             else {
                 std::cout << "OK" << std::endl;
+                return false;
             }
         }
         else {
             std::cout << "syntax error" << std::endl;
-            return;
+            return false;
         }
     }
     else if (oper == "drop") {
@@ -202,9 +205,11 @@ void Interpreter::parse(std::string input) {
             Response res = api.dropTable(tableName);
             if (!res.succeed) {
                 std::cout << res.info << std::endl;
+                return false;
             }
             else {
                 std::cout << "OK" << std::endl;
+                return false;
             }
         }
         else if (type == "index") {
@@ -213,14 +218,16 @@ void Interpreter::parse(std::string input) {
             Response res = api.dropIndex(indexName);
             if (!res.succeed) {
                 std::cout << res.info << std::endl;
+                return false;
             }
             else {
                 std::cout << "OK" << std::endl;
+                return false;
             }
         }
         else {
             std::cout << "syntax error" << std::endl;
-            return;
+            return false;
         }
     }
     else if (oper == "insert") {
@@ -242,9 +249,11 @@ void Interpreter::parse(std::string input) {
         Response res = api.Insert(tableName, entry);
         if (!res.succeed) {
             std::cout << res.info << std::endl;
+            return false;
         }
         else {
             std::cout << "OK" << std::endl;
+            return false;
         }
     }
     else if (oper == "select") {
@@ -255,7 +264,7 @@ void Interpreter::parse(std::string input) {
         Filter filter;
         if (!api.cm.hasTable(tableName + ".table")) {
             std::cout << "table does not exist" << std::endl;
-            return;
+            return false;
         }
         Table nt = api.cm.loadTable(tableName + ".table");
         while (sin >> null) { // null == "where", null == "and"
@@ -270,7 +279,7 @@ void Interpreter::parse(std::string input) {
             }
             if (index == -1) {
                 std::cout << "attribute does not exist" << std::endl;
-                return;
+                return false;
             }
             if (ope == "<") op = 0;
             else if (ope == "<=") op = 1;
@@ -280,16 +289,18 @@ void Interpreter::parse(std::string input) {
             else if (ope == "<>") op = 5;
             else {
                 std::cout << "syntax error" << std::endl;
-                return;
+                return false;
             }
             filter.addRule(Rule(index, op, parseElement(data)));
         }
         Response res = api.Select(tableName, filter);
         if (!res.succeed) {
             std::cout << res.info << std::endl;
+            return false;
         }
         else {
             printSelectResult(nt, res);
+            return false;
         }
     }
     else if (oper == "delete") {
@@ -298,7 +309,7 @@ void Interpreter::parse(std::string input) {
         Filter filter;
         if (!api.cm.hasTable(tableName + ".table")) {
             std::cout << "table does not exist" << std::endl;
-            return;
+            return false;
         }
         Table nt = api.cm.loadTable(tableName + ".table");
         while (sin >> null) { // null == "where", null == "and"
@@ -313,7 +324,7 @@ void Interpreter::parse(std::string input) {
             }
             if (index == -1) {
                 std::cout << "attribute does not exist" << std::endl;
-                return;
+                return false;
             }
             if (ope == "<") op = 0;
             else if (ope == "<=") op = 1;
@@ -323,7 +334,7 @@ void Interpreter::parse(std::string input) {
             else if (ope == "<>") op = 5;
             else {
                 std::cout << "syntax error" << std::endl;
-                return;
+                return false;
             }
             filter.addRule(Rule(index, op, parseElement(data)));
         }
@@ -337,8 +348,9 @@ void Interpreter::parse(std::string input) {
     }
     else {
         std::cout << "syntax error" << std::endl;
-        return;
+        return false;
     }
+    return false;
 }
 
 void Interpreter::printSelectResult(const Table &nt, const Response &res) {

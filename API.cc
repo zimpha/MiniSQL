@@ -92,7 +92,6 @@ Response API::dropTable(const std::string &tableName) {
     // Record Manager clear database
     // 传入数据库文件名(dbName)
     rm.RecordManagerTableDetete(dbName);
-
     return Response();
 }
 
@@ -176,6 +175,7 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
                 newOffset = getMoreOffset(indexFileName, val);
                 break;
             case 5: // <>
+                newOffset = offset;
                 break;
             default: 
                 assert(false);
@@ -281,6 +281,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
                 newOffset = getMoreOffset(indexFileName, val);
                 break;
             case 5: // <>
+                newOffset = offset;
                 break;
             default: 
                 assert(false);

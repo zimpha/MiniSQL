@@ -6,12 +6,12 @@
 
 class Interpreter {
 public:
-    void process(std::string line);
+    bool process(std::string line);
 private:
     API api;
-    void execfile(std::string filename);
+    bool execfile(std::string filename);
     element parseElement(std::string data);
-    void parse(std::string input);
+    bool parse(std::string input);
     void printSelectResult(const Table &nt, const Response &res);
 };
 #endif

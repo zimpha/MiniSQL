@@ -415,4 +415,5 @@ void IndexManager::load() {
         fread(&rhs, sizeof(rhs), 1, file);
         mp[lhs] = rhs;
     }
+    fclose(file);
 }

@@ -64,6 +64,7 @@ void BFM::BufferManagerWrite(const Block &b)
         outFile = fopen(b.fileName.c_str(), "wb");
     }
     else{
+        fclose(fp);
         outFile = fopen(b.fileName.c_str(), "rb+");
     }
     if(outFile==NULL){
@@ -104,5 +105,5 @@ void BFM::deleteFile(const string &fileName)
     for (; tIt!=table.end() && tIt->first.first==fileName; ){
         BufferManagerWrite(*(tIt++->second));
     }
-    remove(fileName.c_str());
+    cout << remove(fileName.c_str()) << " " <<fileName<<endl;
 }
