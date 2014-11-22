@@ -116,7 +116,7 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
             element val = filter.rules[i].val;
             int attrIndex = filter.rules[i].index;
             if (!nt.attributes[attrIndex].indices.empty()) { // has index on it
-                std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+                std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name;
                 long offset = getOffset(indexFileName, val);
                 // offset == -1 表示没有这个val
                 // Record Manager return select result by using index
@@ -146,7 +146,7 @@ Response API::Select(const std::string &tableName, const Filter &filter) {
             continue;
         }
         element val = rule.val;
-        std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+        std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name;
         std::set<long> newOffset;
         long tmpOffset;
         // B plus tree get offset according to filter rules
@@ -222,7 +222,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
             element val = filter.rules[i].val;
             int attrIndex = filter.rules[i].index;
             if (!nt.attributes[attrIndex].indices.empty()) { // has index on it
-                std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+                std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name;
                 long offset = getOffset(indexFileName, val);
                 // offset == -1 表示没有这个val
                 // Record Manager delete records by using index
@@ -251,7 +251,7 @@ Response API::Delete(const std::string &tableName, const Filter &filter) {
             continue;
         }
         element val = rule.val;
-        std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name + ".index";
+        std::string indexFileName = tableName + "." + nt.attributes[attrIndex].name;
         std::set<long> newOffset;
         long tmpOffset;
         // B plus tree get offset according to filter rules
