@@ -13,6 +13,8 @@ using namespace std;
 const int SZ = (BLOCKSIZE - sizeof(long) - sizeof(int) - sizeof(bool) * 2) / (sizeof(long) + sizeof(element)) - 1;
 const std::string info_index_exist = "Index already exist.";
 
+map <element, long> IndexManager::mp;
+string IndexManager::currentFile;
 
 struct BTNode {
     bool isLeaf;
@@ -240,6 +242,10 @@ namespace BT {
 IndexManager::IndexManager(BFM &bfm): bfm(bfm) {
     currentFile = "";
     mp.clear();
+}
+
+IndexManager::~IndexManager() {
+    save();
 }
 
 Response IndexManager::create(const string &indexName, const string &dbName, Table &table, const AttrType &attr) {

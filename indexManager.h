@@ -13,6 +13,8 @@ struct Node;
 struct IndexManager {
     IndexManager(BFM &);
 
+    ~IndexManager();
+
     Response create(const std::string &indexName, const std::string &dbName, Table &table, const AttrType &attr);
 
     Response drop(const std::string &indexName);
@@ -36,8 +38,8 @@ struct IndexManager {
 
 private:
     BFM &bfm;
-    std::map <element, long> mp;
-    std::string currentFile;
+    static std::map <element, long> mp;
+    static std::string currentFile;
 };
 
 #endif
