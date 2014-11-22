@@ -59,6 +59,13 @@ void Interpreter::parse(std::string input) {
         api.bm.BufferManagerFlush();
         exit(0);
     }
+
+    if (input == "flush") {
+        api.bm.BufferManagerFlush();
+        printf("Flush finished\n");
+        return;
+    }
+
     if (input == "") return;
     
     for (size_t i = 0; i < input.length(); ++ i) {

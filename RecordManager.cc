@@ -105,7 +105,7 @@ void RecordManager::RecordManagerRecordInsert(std::string dbName, const std::vec
         newBlock.fileName = dbName;
         newBlock.offset = offset;
         InputRecord(newBlock, 0, entry, nt);
-        setInt(block, BLOCKSIZE - 4, tupleSize);
+        setInt(newBlock, BLOCKSIZE - 4, tupleSize);
         bm.BufferManagerWrite(newBlock);
 
         nt.blockCount++;
