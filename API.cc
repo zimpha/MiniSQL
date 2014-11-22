@@ -42,7 +42,7 @@ Response API::createIndex(const std::string &indexName, const std::string &table
         // Index Manager add index
         // 提供index文件名和当前表，以及attrIndex给Record Manager
         // rmAddIndex(tableName+".db",tableName+"."+nt.attributes[attrIndex].name+".index",nt,attrIndex);
-        im.create(tableName+"."+nt.attributes[attrIndex].name, tableName, nt, nt.attributes[attrIndex]);
+        im.create(tableName+"."+nt.attributes[attrIndex].name, tableName+".db", nt, nt.attributes[attrIndex]);
     }
     return Response();
 }
