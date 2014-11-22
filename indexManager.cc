@@ -297,6 +297,11 @@ Response IndexManager::erase(const string &indexName, const element &e) {
 long IndexManager::find(const std::string &indexName, const element &e) {
     string name = getIndexFileName(indexName);
     if (!isFileExist(name)) return -1;
+    if (name != currentFile) {
+        save();
+        currentFile = name;
+        load();
+    }
     if (!mp.count(e)) return -1;
     return mp[e];
 }
@@ -304,6 +309,11 @@ long IndexManager::find(const std::string &indexName, const element &e) {
 set <long> IndexManager::greater(const std::string &indexName, const element &e) {
     string name = getIndexFileName(indexName);
     if (!isFileExist(name)) return set <long> ();
+    if (name != currentFile) {
+        save();
+        currentFile = name;
+        load();
+    }
     set <long> res;
     for (auto it = mp.upper_bound(e); it != mp.end(); it++) {
         res.insert(it->second);
@@ -314,6 +324,11 @@ set <long> IndexManager::greater(const std::string &indexName, const element &e)
 set <long> IndexManager::less(const std::string &indexName, const element &e) {
     string name = getIndexFileName(indexName);
     if (!isFileExist(name)) return set <long> ();
+    if (name != currentFile) {
+        save();
+        currentFile = name;
+        load();
+    }
     set <long> res;
     for (auto it = mp.begin(); it != mp.end() && it->first < e; it++) {
         res.insert(it->second);
@@ -324,6 +339,11 @@ set <long> IndexManager::less(const std::string &indexName, const element &e) {
 set <long> IndexManager::inRange(const std::string &indexName, const element &lhs, const element &rhs) {
     string name = getIndexFileName(indexName);
     if (!isFileExist(name)) return set <long> ();
+    if (name != currentFile) {
+        save();
+        currentFile = name;
+        load();
+    }
     set <long> res;
     for (auto it = mp.lower_bound(lhs); it != mp.end() && it->first <= rhs; it++) {
         res.insert(it->second);
