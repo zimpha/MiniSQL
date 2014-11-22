@@ -264,6 +264,7 @@ Response IndexManager::drop(const std::string &indexName) {
         return badRes("No such index. -- IndexManager::drop");
     } else {
         bfm.deleteFile(name);
+        currentFile = "";
         return goodRes();
     }
 }
@@ -357,7 +358,18 @@ void IndexManager::save() {
     int tmp = mp.size();
     fwrite(&tmp, sizeof(int), 1, file);
     for (auto o : mp) {
-        fwrite(&o.first, sizeof(o.first), 1, file);
+        char type;
+        fwrite(&o.first.type, sizeof(o.first.type), 1, file);
+        if (o.first.type == 0) {
+            fwrite(&o.first.i, sizeof(o.first.i), 1, file);
+        } else if (o.first.type == 1) {
+            fwrite(&o.first.f, sizeof(o.first.f), 1, file);
+        } else if (o.first.type == 2) {
+            for (char c : o.first.s)
+                fwrite(&c, sizeof(c), 1, file);
+            char c = 0;
+            fwrite(&c, sizeof(c), 1, file);
+        }
         fwrite(&o.second, sizeof(o.second), 1, file);
     }
     fclose(file);
@@ -372,7 +384,27 @@ void IndexManager::load() {
     long rhs;
     fread(&n, sizeof(int), 1, file);
     for (int i = 0; i < n; i++) {
-        fread(&lhs, sizeof(lhs), 1, file);
+        int type;
+        fread(&type, sizeof(type), 1, file);
+        if (type == 0) {
+            int tmp;
+            fread(&tmp, sizeof(tmp), 1, file);
+            lhs = element(tmp);
+        } else if (type == 1) {
+            float tmp;
+            fread(&tmp, sizeof(tmp), 1, file);
+            lhs = element(tmp);
+        } else if (type == 2) {
+            string s;
+            for (char c;;) {
+                fread(&c, sizeof(c), 1, file);
+                if (c == 0) break;
+                s += c;
+            }
+            lhs = element(s);
+        } else {
+            lhs.type = -1;
+        }
         fread(&rhs, sizeof(rhs), 1, file);
         mp[lhs] = rhs;
     }
