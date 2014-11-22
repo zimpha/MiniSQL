@@ -16,7 +16,7 @@ Otherwise, it is BLOCKSIZE.
 
 class RecordManager{
 public:
-    RecordManager(BFM & bm);
+    RecordManager(BFM & bm, IndexManager & im);
     void RecordManagerTableCreate(std::string dbName);
     void RecordManagerTableDetete(std::string dbName);
     void RecordManagerRecordInsert(std::string dbName, const std::vector<element> & entry, Table & nt);
@@ -25,6 +25,7 @@ public:
     std::set<long> RecordManagerGetAllOffsets(std::string dbName, Table & nt);
 
     BFM & bm;
+    IndexManager & im;
 
     int getInt(Block &block, int startPos);
     void setInt(Block &block, int startPos, int num);

@@ -68,7 +68,7 @@ void RecordManager::setString(Block &block, int startPos, std::string str)
     strcpy((char *)block.data + startPos, str.c_str());
 }
 
-RecordManager::RecordManager(BFM & bm) :bm(bm)
+RecordManager::RecordManager(BFM & bm) :bm(bm), im(im)
 {
 
 }
@@ -117,6 +117,7 @@ void RecordManager::RecordManagerRecordInsert(std::string dbName, const std::vec
         endPoint += tupleSize;
         setInt(block, BLOCKSIZE - 4, endPoint);
     }
+
 }
 
 void RecordManager::InputRecord(Block & block, int tuplePos, const std::vector<element> & entry, Table & nt)
