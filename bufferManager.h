@@ -83,11 +83,6 @@ public:
 private:
 	static std::list <Block> buffer;
 	static std::map <tag, bufferIter> table;
-	/*
-	改为static后主程序中需要在全局变量声明中添加以下两行进行初始化
-        map <tag, bufferIter> BFM::table;
-        list <Block> BFM::buffer;
-	*/
 };
 
 #endif
