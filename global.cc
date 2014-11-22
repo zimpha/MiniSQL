@@ -110,4 +110,4 @@ bool element::operator != (const element &rhs) const {
 
 Response::Response(): succeed(true) {}
 Response::Response(std::string data): succeed(false), info(data) {}
-Response::Response(std::vector<std::vector<element> > res): succeed(false), result(res) {}
+Response::Response(std::vector<std::vector<element> > res): succeed(true), result(res) {}
