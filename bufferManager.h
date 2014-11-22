@@ -81,8 +81,13 @@ public:
 		操作: 将缓冲区中所有的该文件的块都强制写出. 然后删除这个文件.
 	*/
 private:
-	std::list <Block> buffer;
-	std::map <tag, bufferIter> table;
+	static std::list <Block> buffer;
+	static std::map <tag, bufferIter> table;
+	/*
+	改为static后主程序中需要在全局变量声明中添加以下两行进行初始化
+        map <tag, bufferIter> BFM::table;
+        list <Block> BFM::buffer;
+	*/
 };
 
 #endif
